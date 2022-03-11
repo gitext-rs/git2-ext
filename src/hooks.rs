@@ -22,6 +22,25 @@ impl Hooks {
         &self.root
     }
 
+    pub fn find_hook(&self, _repo: &git2::Repository, name: &str) -> Option<std::path::PathBuf> {
+        let mut hook_path = self.root().join(name);
+        if is_executable(&hook_path) {
+            return Some(hook_path);
+        }
+
+        if !std::env::consts::EXE_SUFFIX.is_empty() {
+            hook_path.set_extension(std::env::consts::EXE_SUFFIX);
+            if is_executable(&hook_path) {
+                return Some(hook_path);
+            }
+        }
+
+        // Technically, we should check `advice.ignoredHook` and warn users if the hook is present
+        // but not executable.  Supporting this in the future is why we accept `repo`.
+
+        None
+    }
+
     pub fn run_hook(
         &self,
         repo: &git2::Repository,
@@ -30,10 +49,16 @@ impl Hooks {
         stdin: Option<&[u8]>,
         env: &[(&str, &str)],
     ) -> Result<i32, std::io::Error> {
-        let hook_path = self.root().join(name);
-        if !hook_path.exists() {
+        let hook_path = if let Some(hook_path) = self.find_hook(repo, name) {
+            hook_path
+        } else {
             return Ok(0);
-        }
+        };
+        let bin_name = hook_path
+            .file_name()
+            .expect("find_hook always returns a bin name")
+            .to_str()
+            .expect("find_hook always returns a utf-8 bin name");
 
         let path = {
             let mut path_components: Vec<std::path::PathBuf> =
@@ -62,11 +87,12 @@ impl Hooks {
 
         let mut cmd = std::process::Command::new(sh_path);
         cmd.arg("-c")
-            .arg(format!("{} \"$@\"", name))
-            .arg(name) // "$@" expands "$1" "$2" "$3" ... but we also must specify $0.
+            .arg(format!("{} \"$@\"", bin_name))
+            .arg(bin_name) // "$@" expands "$1" "$2" "$3" ... but we also must specify $0.
             .args(args)
             .env("PATH", path)
             .current_dir(cwd)
+            // Technically, git maps stdout to stderr when running hooks
             .stdin(std::process::Stdio::piped());
         for (key, value) in env.iter().copied() {
             cmd.env(key, value);
@@ -121,3 +147,20 @@ const PUSH_HOOKS: &[&str] = &[
     "post-update",
     "push-to-checkout",
 ];
+
+#[cfg(unix)]
+fn is_executable(path: &std::path::Path) -> bool {
+    use std::os::unix::fs::PermissionsExt;
+
+    let metadata = match path.metadata() {
+        Ok(metadata) => metadata,
+        Err(_) => return false,
+    };
+    let permissions = metadata.permissions();
+    metadata.is_file() && permissions.mode() & 0o111 != 0
+}
+
+#[cfg(not(unix))]
+fn is_executable(path: &std::path::Path) -> bool {
+    path.is_file()
+}
