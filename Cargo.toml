@@ -1,6 +1,6 @@
 [package]
 name = "git2ext"
-version = "0.0.2"
+version = "0.0.3"
 description = "git2 Extensions"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/gitext-rs/git2ext.git"
