@@ -31,3 +31,9 @@ pre-release-replacements = [
 
 [dependencies]
 git2 = { version = "0.14", default-features = false }
+log = "0.4"
+itertools = "0.10"
+
+[dev-dependencies]
+git-fixture = { version = "0.2" }
+assert_fs = "1"
