@@ -114,7 +114,7 @@ impl Hooks {
     /// The hook should be run after any automatic note copying (see "notes.rewrite.<command>" in
     /// git-config(1)) has happened, and thus has access to these notes.
     ///
-    /// **changedd_shas:**
+    /// **changed_shas (old, new):**
     /// - For the squash and fixup operation, all commits that were squashed are listed as being rewritten to the squashed commit. This means
     ///   that there will be several lines sharing the same new-sha1.
     /// - The commits are must be listed in the order that they were processed by rebase.
@@ -131,6 +131,96 @@ impl Hooks {
         for (old_oid, new_oid) in changed_oids {
             use std::fmt::Write;
             writeln!(stdin, "{} {}", old_oid, new_oid).expect("Always writeable");
+        }
+
+        let code = self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[])?;
+        log::trace!("Hook `{}` failed with code {}", name, code);
+
+        Ok(())
+    }
+
+    /// Run `reference-transaction` hook to signal that all reference updates have been queued to the transaction.
+    ///
+    /// **changed_refs (old, new, name):**
+    /// - `name` is the full name of the ref
+    /// - `old` is zeroed out when force updating the reference regardless of its current value or
+    ///   when the reference is to be created anew
+    ///
+    /// On success, call either
+    /// - `run_reference_transaction_committed`
+    /// - `run_reference_transaction_aborted`.
+    ///
+    /// On failure, the transaction is considered aborted
+    pub fn run_reference_transaction_prepare(
+        &self,
+        repo: &git2::Repository,
+        changed_refs: &[(git2::Oid, git2::Oid, &str)],
+    ) -> Result<(), std::io::Error> {
+        let name = "reference-transaction";
+        let state = "prepare";
+        let args = [state];
+        let mut stdin = String::new();
+        for (old_oid, new_oid, ref_name) in changed_refs {
+            use std::fmt::Write;
+            writeln!(stdin, "{} {} {}", old_oid, new_oid, ref_name).expect("Always writeable");
+        }
+
+        let code = self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[])?;
+        if code == 0 {
+            Ok(())
+        } else {
+            log::trace!("Hook `{}` failed with code {}", name, code);
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Interrupted,
+                format!("`{}` hook failed with code {}", name, code),
+            ))
+        }
+    }
+
+    /// Run `reference-transaction` hook to signal that all reference updates have been applied
+    ///
+    /// **changed_refs (old, new, name):**
+    /// - `name` is the full name of the ref
+    /// - `old` is zeroed out when force updating the reference regardless of its current value or
+    ///   when the reference is to be created anew
+    pub fn run_reference_transaction_committed(
+        &self,
+        repo: &git2::Repository,
+        changed_refs: &[(git2::Oid, git2::Oid, &str)],
+    ) -> Result<(), std::io::Error> {
+        let name = "reference-transaction";
+        let state = "committed";
+        let args = [state];
+        let mut stdin = String::new();
+        for (old_oid, new_oid, ref_name) in changed_refs {
+            use std::fmt::Write;
+            writeln!(stdin, "{} {} {}", old_oid, new_oid, ref_name).expect("Always writeable");
+        }
+
+        let code = self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[])?;
+        log::trace!("Hook `{}` failed with code {}", name, code);
+
+        Ok(())
+    }
+
+    /// Run `reference-transaction` hook to signal that no changes have been made
+    ///
+    /// **changed_refs (old, new, name):**
+    /// - `name` is the full name of the ref
+    /// - `old` is zeroed out when force updating the reference regardless of its current value or
+    ///   when the reference is to be created anew
+    pub fn run_reference_transaction_aborted(
+        &self,
+        repo: &git2::Repository,
+        changed_refs: &[(git2::Oid, git2::Oid, &str)],
+    ) -> Result<(), std::io::Error> {
+        let name = "reference-transaction";
+        let state = "aborted";
+        let args = [state];
+        let mut stdin = String::new();
+        for (old_oid, new_oid, ref_name) in changed_refs {
+            use std::fmt::Write;
+            writeln!(stdin, "{} {} {}", old_oid, new_oid, ref_name).expect("Always writeable");
         }
 
         let code = self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[])?;
