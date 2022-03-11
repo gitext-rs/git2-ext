@@ -1,5 +1,3 @@
-use std::io::Write;
-
 #[derive(Clone, Debug)]
 pub struct Hooks {
     root: std::path::PathBuf,
@@ -75,12 +73,44 @@ impl Hooks {
         }
         let mut process = cmd.spawn()?;
         if let Some(stdin) = stdin {
+            use std::io::Write;
+
             process.stdin.as_mut().unwrap().write_all(stdin)?;
         }
         let exit = process.wait()?;
 
         const SIGNAL_EXIT_CODE: i32 = 1;
         Ok(exit.code().unwrap_or(SIGNAL_EXIT_CODE))
+    }
+
+    /// Run `post-rewrite` hook as if called by `git rebase`
+    ///
+    /// The hook should be run after any automatic note copying (see "notes.rewrite.<command>" in
+    /// git-config(1)) has happened, and thus has access to these notes.
+    ///
+    /// **changedd_shas:**
+    /// - For the squash and fixup operation, all commits that were squashed are listed as being rewritten to the squashed commit. This means
+    ///   that there will be several lines sharing the same new-sha1.
+    /// - The commits are must be listed in the order that they were processed by rebase.
+    /// - `git` doesn't include entries for dropped commits
+    pub fn run_post_rewrite_rebase(
+        &self,
+        repo: &git2::Repository,
+        changed_oids: &[(git2::Oid, git2::Oid)],
+    ) -> Result<(), std::io::Error> {
+        let name = "post-rewrite";
+        let command = "rebase";
+        let args = [command];
+        let mut stdin = String::new();
+        for (old_oid, new_oid) in changed_oids {
+            use std::fmt::Write;
+            writeln!(stdin, "{} {}", old_oid, new_oid).expect("Always writeable");
+        }
+
+        let code = self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[])?;
+        log::trace!("Hook `{}` failed with code {}", name, code);
+
+        Ok(())
     }
 }
 
