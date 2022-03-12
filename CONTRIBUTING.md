@@ -1,4 +1,4 @@
-# Contributing to git2ext
+# Contributing to git2-ext
 
 Thanks for wanting to contribute! There are many ways to contribute and we
 appreciate any level you're willing to do.
@@ -63,7 +63,7 @@ When we're ready to release, a project owner should do the following
 - `git push upstream master --tag v<X>.<Y>.<Z>`
 - Run `cargo publish` (run `cargo login` first if needed)
 
-[issues]: https://github.com/gitext-rs/git2ext/issues
-[new issue]: https://github.com/gitext-rs/git2ext/issues/new
-[all issues]: https://github.com/gitext-rs/git2ext/issues?utf8=%E2%9C%93&q=is%3Aissue
-[travis]: https://github.com/gitext-rs/git2ext/blob/master/.travis.yml
+[issues]: https://github.com/gitext-rs/git2-ext/issues
+[new issue]: https://github.com/gitext-rs/git2-ext/issues/new
+[all issues]: https://github.com/gitext-rs/git2-ext/issues?utf8=%E2%9C%93&q=is%3Aissue
+[travis]: https://github.com/gitext-rs/git2-ext/blob/master/.travis.yml

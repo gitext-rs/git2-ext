@@ -1,11 +1,11 @@
 [package]
-name = "git2ext"
+name = "git2-ext"
 version = "0.0.3"
 description = "git2 Extensions"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/gitext-rs/git2ext.git"
-homepage = "https://github.com/gitext-rs/git2ext"
-documentation = "http://docs.rs/git2ext/"
+repository = "https://github.com/gitext-rs/git2-ext.git"
+homepage = "https://github.com/gitext-rs/git2-ext"
+documentation = "http://docs.rs/git2-ext/"
 readme = "README.md"
 categories = ["command-line-interface"]
 keywords = ["cli", "clap"]
@@ -26,7 +26,7 @@ pre-release-replacements = [
   {file="CHANGELOG.md", search="\\.\\.\\.HEAD", replace="...{{tag_name}}", exactly=1},
   {file="CHANGELOG.md", search="ReleaseDate", replace="{{date}}", min=1},
   {file="CHANGELOG.md", search="<!-- next-header -->", replace="<!-- next-header -->\n## [Unreleased] - ReleaseDate\n", exactly=1},
-  {file="CHANGELOG.md", search="<!-- next-url -->", replace="<!-- next-url -->\n[Unreleased]: https://github.com/gitext-rs/git2ext/compare/{{tag_name}}...HEAD", exactly=1},
+  {file="CHANGELOG.md", search="<!-- next-url -->", replace="<!-- next-url -->\n[Unreleased]: https://github.com/gitext-rs/git2-ext/compare/{{tag_name}}...HEAD", exactly=1},
 ]
 
 [dependencies]

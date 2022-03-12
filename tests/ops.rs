@@ -7,8 +7,8 @@ fn cherry_pick_clean() {
     let repo = git2::Repository::discover(temp.path()).unwrap();
 
     {
-        assert!(!git2ext::ops::is_dirty(&repo));
-        let expected_head_id = git2ext::ops::head_id(&repo).unwrap();
+        assert!(!git2_ext::ops::is_dirty(&repo));
+        let expected_head_id = git2_ext::ops::head_id(&repo).unwrap();
 
         let base = repo
             .find_branch("off_master", git2::BranchType::Local)
@@ -19,16 +19,16 @@ fn cherry_pick_clean() {
             .unwrap();
         let source_id = source.get().target().unwrap();
 
-        let dest_id = git2ext::ops::cherry_pick(&repo, base_id, source_id).unwrap();
+        let dest_id = git2_ext::ops::cherry_pick(&repo, base_id, source_id).unwrap();
 
         let source_commit = repo.find_commit(source_id).unwrap();
         let dest_commit = repo.find_commit(dest_id).unwrap();
-        let actual_head_id = git2ext::ops::head_id(&repo).unwrap();
+        let actual_head_id = git2_ext::ops::head_id(&repo).unwrap();
 
         assert_ne!(dest_id, source_id);
         assert_eq!(dest_commit.message(), source_commit.message());
         assert_eq!(expected_head_id, actual_head_id);
-        assert!(!git2ext::ops::is_dirty(&repo));
+        assert!(!git2_ext::ops::is_dirty(&repo));
     }
 
     temp.close().unwrap();
@@ -43,7 +43,7 @@ fn cherry_pick_conflict() {
     let repo = git2::Repository::discover(temp.path()).unwrap();
 
     {
-        assert!(!git2ext::ops::is_dirty(&repo));
+        assert!(!git2_ext::ops::is_dirty(&repo));
 
         let base = repo
             .find_branch("feature1", git2::BranchType::Local)
@@ -52,11 +52,11 @@ fn cherry_pick_conflict() {
         let source = repo.find_branch("master", git2::BranchType::Local).unwrap();
         let source_id = source.get().target().unwrap();
 
-        let dest_id = git2ext::ops::cherry_pick(&repo, base_id, source_id);
+        let dest_id = git2_ext::ops::cherry_pick(&repo, base_id, source_id);
 
         println!("{:#?}", dest_id);
         assert!(dest_id.is_err());
-        assert!(!git2ext::ops::is_dirty(&repo));
+        assert!(!git2_ext::ops::is_dirty(&repo));
     }
 
     temp.close().unwrap();
@@ -71,7 +71,7 @@ fn squash_clean() {
     let repo = git2::Repository::discover(temp.path()).unwrap();
 
     {
-        assert!(!git2ext::ops::is_dirty(&repo));
+        assert!(!git2_ext::ops::is_dirty(&repo));
 
         let base = repo.find_branch("master", git2::BranchType::Local).unwrap();
         let base_id = base.get().target().unwrap();
@@ -80,10 +80,10 @@ fn squash_clean() {
             .unwrap();
         let source_id = source.get().target().unwrap();
 
-        let dest_id = git2ext::ops::squash(&repo, source_id, base_id).unwrap();
+        let dest_id = git2_ext::ops::squash(&repo, source_id, base_id).unwrap();
 
         println!("{:#?}", dest_id);
-        assert!(!git2ext::ops::is_dirty(&repo));
+        assert!(!git2_ext::ops::is_dirty(&repo));
     }
 
     temp.close().unwrap();

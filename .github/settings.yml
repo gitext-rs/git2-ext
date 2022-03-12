@@ -2,7 +2,7 @@
 
 repository:
   description: git2 Extensions
-  homepage: docs.rs/git2ext
+  homepage: docs.rs/git2-ext
   topics: rust cli clap
   has_issues: true
   has_projects: false
