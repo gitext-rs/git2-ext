@@ -51,7 +51,16 @@ pub fn cherry_pick(
     head_id: git2::Oid,
     cherry_id: git2::Oid,
 ) -> Result<git2::Oid, git2::Error> {
-    let base_id = repo.merge_base(head_id, cherry_id).unwrap_or(cherry_id);
+    let cherry_commit = repo.find_commit(cherry_id)?;
+    let base_id = match cherry_commit.parent_count() {
+        0 => cherry_id,
+        1 => cherry_commit.parent_id(0)?,
+        _ => cherry_commit
+            .parent_ids()
+            .find(|id| *id == head_id)
+            .map(Result::Ok)
+            .unwrap_or_else(|| cherry_commit.parent_id(0))?,
+    };
     if base_id == head_id {
         // Already on top of the intended base
         return Ok(cherry_id);
@@ -60,7 +69,6 @@ pub fn cherry_pick(
     let base_ann_commit = repo.find_annotated_commit(base_id)?;
     let head_ann_commit = repo.find_annotated_commit(head_id)?;
     let cherry_ann_commit = repo.find_annotated_commit(cherry_id)?;
-    let cherry_commit = repo.find_commit(cherry_id)?;
     let mut rebase = repo.rebase(
         Some(&cherry_ann_commit),
         Some(&base_ann_commit),
