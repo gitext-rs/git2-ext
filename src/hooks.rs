@@ -150,6 +150,26 @@ impl Hooks {
     /// - `name` is the full name of the ref
     /// - `old` is zeroed out when force updating the reference regardless of its current value or
     ///   when the reference is to be created anew
+    pub fn run_reference_transaction<'t>(
+        &'t self,
+        repo: &'t git2::Repository,
+        changed_refs: &'t [(git2::Oid, git2::Oid, &'t str)],
+    ) -> Result<ReferenceTransaction<'_>, std::io::Error> {
+        self.run_reference_transaction_prepare(repo, changed_refs)?;
+
+        Ok(ReferenceTransaction {
+            hook: self,
+            repo,
+            changed_refs,
+        })
+    }
+
+    /// Run `reference-transaction` hook to signal that all reference updates have been queued to the transaction.
+    ///
+    /// **changed_refs (old, new, name):**
+    /// - `name` is the full name of the ref
+    /// - `old` is zeroed out when force updating the reference regardless of its current value or
+    ///   when the reference is to be created anew
     ///
     /// On success, call either
     /// - `run_reference_transaction_committed`
@@ -242,6 +262,39 @@ impl Hooks {
                 log::trace!("Hook `{}` failed with {}", name, err);
             }
         }
+    }
+}
+
+pub struct ReferenceTransaction<'t> {
+    hook: &'t Hooks,
+    repo: &'t git2::Repository,
+    changed_refs: &'t [(git2::Oid, git2::Oid, &'t str)],
+}
+
+impl<'t> ReferenceTransaction<'t> {
+    pub fn committed(self) {
+        let Self {
+            hook,
+            repo,
+            changed_refs,
+        } = self;
+        hook.run_reference_transaction_committed(repo, changed_refs);
+    }
+
+    pub fn aborted(self) {
+        let Self {
+            hook,
+            repo,
+            changed_refs,
+        } = self;
+        hook.run_reference_transaction_aborted(repo, changed_refs);
+    }
+}
+
+impl<'t> Drop for ReferenceTransaction<'t> {
+    fn drop(&mut self) {
+        self.hook
+            .run_reference_transaction_aborted(self.repo, self.changed_refs);
     }
 }
 
