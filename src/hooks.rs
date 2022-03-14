@@ -123,7 +123,7 @@ impl Hooks {
         &self,
         repo: &git2::Repository,
         changed_oids: &[(git2::Oid, git2::Oid)],
-    ) -> Result<(), std::io::Error> {
+    ) {
         let name = "post-rewrite";
         let command = "rebase";
         let args = [command];
@@ -133,10 +133,15 @@ impl Hooks {
             writeln!(stdin, "{} {}", old_oid, new_oid).expect("Always writeable");
         }
 
-        let code = self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[])?;
-        log::trace!("Hook `{}` failed with code {}", name, code);
-
-        Ok(())
+        match self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[]) {
+            Ok(code) if code != 0 => {
+                log::trace!("Hook `{}` failed with code {}", name, code);
+            }
+            Ok(_) => {}
+            Err(err) => {
+                log::trace!("Hook `{}` failed with {}", name, err);
+            }
+        }
     }
 
     /// Run `reference-transaction` hook to signal that all reference updates have been queued to the transaction.
@@ -187,7 +192,7 @@ impl Hooks {
         &self,
         repo: &git2::Repository,
         changed_refs: &[(git2::Oid, git2::Oid, &str)],
-    ) -> Result<(), std::io::Error> {
+    ) {
         let name = "reference-transaction";
         let state = "committed";
         let args = [state];
@@ -197,10 +202,15 @@ impl Hooks {
             writeln!(stdin, "{} {} {}", old_oid, new_oid, ref_name).expect("Always writeable");
         }
 
-        let code = self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[])?;
-        log::trace!("Hook `{}` failed with code {}", name, code);
-
-        Ok(())
+        match self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[]) {
+            Ok(code) if code != 0 => {
+                log::trace!("Hook `{}` failed with code {}", name, code);
+            }
+            Ok(_) => {}
+            Err(err) => {
+                log::trace!("Hook `{}` failed with {}", name, err);
+            }
+        }
     }
 
     /// Run `reference-transaction` hook to signal that no changes have been made
@@ -213,7 +223,7 @@ impl Hooks {
         &self,
         repo: &git2::Repository,
         changed_refs: &[(git2::Oid, git2::Oid, &str)],
-    ) -> Result<(), std::io::Error> {
+    ) {
         let name = "reference-transaction";
         let state = "aborted";
         let args = [state];
@@ -223,10 +233,15 @@ impl Hooks {
             writeln!(stdin, "{} {} {}", old_oid, new_oid, ref_name).expect("Always writeable");
         }
 
-        let code = self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[])?;
-        log::trace!("Hook `{}` failed with code {}", name, code);
-
-        Ok(())
+        match self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[]) {
+            Ok(code) if code != 0 => {
+                log::trace!("Hook `{}` failed with code {}", name, code);
+            }
+            Ok(_) => {}
+            Err(err) => {
+                log::trace!("Hook `{}` failed with {}", name, err);
+            }
+        }
     }
 }
 
