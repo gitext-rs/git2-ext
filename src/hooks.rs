@@ -134,10 +134,10 @@ impl Hooks {
         }
 
         match self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[]) {
-            Ok(code) if code != 0 => {
+            Ok(0) => {}
+            Ok(code) => {
                 log::trace!("Hook `{}` failed with code {}", name, code);
             }
-            Ok(_) => {}
             Err(err) => {
                 log::trace!("Hook `{}` failed with {}", name, err);
             }
@@ -223,10 +223,10 @@ impl Hooks {
         }
 
         match self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[]) {
-            Ok(code) if code != 0 => {
+            Ok(0) => {}
+            Ok(code) => {
                 log::trace!("Hook `{}` failed with code {}", name, code);
             }
-            Ok(_) => {}
             Err(err) => {
                 log::trace!("Hook `{}` failed with {}", name, err);
             }
@@ -254,10 +254,10 @@ impl Hooks {
         }
 
         match self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[]) {
-            Ok(code) if code != 0 => {
+            Ok(0) => {}
+            Ok(code) => {
                 log::trace!("Hook `{}` failed with code {}", name, code);
             }
-            Ok(_) => {}
             Err(err) => {
                 log::trace!("Hook `{}` failed with {}", name, err);
             }
