@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.0.5] - 2022-03-14
+
 ### Breaking Change
 
 - Made clear which hooks are never-fail
@@ -34,6 +36,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Wrappers around git hooks
 
 <!-- next-url -->
-[Unreleased]: https://github.com/gitext-rs/git2-ext/compare/v0.0.4...HEAD
+[Unreleased]: https://github.com/gitext-rs/git2-ext/compare/v0.0.5...HEAD
+[0.0.5]: https://github.com/gitext-rs/git2-ext/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/gitext-rs/git2-ext/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/gitext-rs/git2-ext/compare/15449592300986753c174f63d412b212ad919285...v0.0.3
