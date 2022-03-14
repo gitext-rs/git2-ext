@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Breaking Change
+
+- Made clear which hooks are never-fail
+
+### Features
+
+- Added `hooks::ReferenceTransaction` to clarify how API should be used
+
+### Fixes
+
+- `ops::cherry_pick` correctly picks parent commit
+- Only log hook exit code on failure
+
 ## [0.0.4] - 2022-03-12
 
 ### Breaking Change
