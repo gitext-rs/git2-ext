@@ -6,6 +6,12 @@
 ![License](https://img.shields.io/crates/l/git2-ext.svg)
 [![Crates Status](https://img.shields.io/crates/v/git2-ext.svg)](https://crates.io/crates/git2-ext)
 
+## About
+
+Goals:
+- Provide "good enough" implementations of essential or higher-level git2 logic, like cherry-pick, squash, hooks, authentication (not implemented yet), etc
+- The above serves as examples for people needing to write their own implementations
+
 ## License
 
 Licensed under either of
