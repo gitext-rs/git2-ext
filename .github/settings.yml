@@ -1,5 +1,4 @@
 # These settings are synced to GitHub by https://probot.github.io/apps/settings/
-
 repository:
   description: git2 Extensions
   homepage: docs.rs/git2-ext
