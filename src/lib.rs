@@ -6,4 +6,10 @@
 
 pub mod hooks;
 pub mod ops;
+pub mod tree;
 pub mod utils;
+
+pub(crate) mod bytes;
+
+#[cfg(test)]
+mod testing;
