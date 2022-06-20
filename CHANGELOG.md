@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Reword support
+
 ## [0.0.5] - 2022-03-14
 
 ### Breaking Change
