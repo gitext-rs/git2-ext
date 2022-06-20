@@ -88,3 +88,28 @@ fn squash_clean() {
 
     temp.close().unwrap();
 }
+
+#[test]
+fn reword() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    let plan = git_fixture::Dag::load(std::path::Path::new("tests/fixtures/branches.yml")).unwrap();
+    plan.run(temp.path()).unwrap();
+
+    let repo = git2::Repository::discover(temp.path()).unwrap();
+
+    {
+        assert!(!git2_ext::ops::is_dirty(&repo));
+
+        let feature2 = repo
+            .find_branch("feature2", git2::BranchType::Local)
+            .unwrap();
+        let feature2_id = feature2.get().target().unwrap();
+
+        let new_id = git2_ext::ops::reword(&repo, feature2_id, "New message").unwrap();
+
+        println!("{:#?}", new_id);
+        assert!(!git2_ext::ops::is_dirty(&repo));
+    }
+
+    temp.close().unwrap();
+}
