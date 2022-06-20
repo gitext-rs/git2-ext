@@ -197,6 +197,27 @@ pub fn squash(
     Ok(new_id)
 }
 
+/// Reword `head_id`s commit
+pub fn reword(
+    repo: &git2::Repository,
+    head_id: git2::Oid,
+    msg: &str,
+) -> Result<git2::Oid, git2::Error> {
+    let old_commit = repo.find_commit(head_id)?;
+    let parents = old_commit.parents().collect::<Vec<_>>();
+    let parents = parents.iter().collect::<Vec<_>>();
+    let tree = repo.find_tree(old_commit.tree_id())?;
+    let new_id = repo.commit(
+        None,
+        &old_commit.author(),
+        &old_commit.committer(),
+        msg,
+        &tree,
+        &parents,
+    )?;
+    Ok(new_id)
+}
+
 // From git2 crate
 #[cfg(unix)]
 fn bytes2path(b: &[u8]) -> &std::path::Path {
