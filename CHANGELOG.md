@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.0.7] - 2022-10-03
+
 ### Breaking Changes
 
 - Upgraded `git2`
@@ -46,7 +48,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Wrappers around git hooks
 
 <!-- next-url -->
-[Unreleased]: https://github.com/gitext-rs/git2-ext/compare/v0.0.6...HEAD
+[Unreleased]: https://github.com/gitext-rs/git2-ext/compare/v0.0.7...HEAD
+[0.0.7]: https://github.com/gitext-rs/git2-ext/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/gitext-rs/git2-ext/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/gitext-rs/git2-ext/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/gitext-rs/git2-ext/compare/v0.0.3...v0.0.4
