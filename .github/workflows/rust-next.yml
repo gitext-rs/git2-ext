@@ -1,7 +1,17 @@
 name: rust-next
+
+permissions:
+  contents: read
+
 on:
   schedule:
   - cron: '1 1 1 * *'
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  CLICOLOR: 1
+
 jobs:
   test:
     name: Test
@@ -16,7 +26,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
@@ -45,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
@@ -61,13 +71,13 @@ jobs:
     strategy:
       matrix:
         rust:
-        - 1.54.0  # MSRV
+        - 1.60.0  # MSRV
         - stable
-    continue-on-error: ${{ matrix.rust != '1.54.0' }}  # MSRV
+    continue-on-error: ${{ matrix.rust != '1.60.0' }}  # MSRV
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:

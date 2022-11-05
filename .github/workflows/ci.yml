@@ -1,4 +1,8 @@
 name: CI
+
+permissions:
+  contents: read
+
 on:
   pull_request:
     paths:
@@ -9,15 +13,16 @@ on:
   push:
     branches:
     - main
-    paths:
-    - '**'
-    - '!/*.md'
-    - '!/docs/**'
-    - "!/LICENSE-*"
-  schedule:
-  - cron: '1 1 1 * *'
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  CLICOLOR: 1
+
 jobs:
   ci:
+    permissions:
+      contents: none
     name: CI
     needs: [test, msrv, docs, rustfmt, clippy]
     runs-on: ubuntu-latest
@@ -34,7 +39,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
@@ -55,15 +60,15 @@ jobs:
     - name: No-default features
       run: cargo test --workspace --no-default-features
   msrv:
-    name: "Check MSRV: 1.54.0"
+    name: "Check MSRV: 1.60.0"
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: 1.54.0  # MSRV
+        toolchain: 1.60.0  # MSRV
         profile: minimal
         override: true
     - uses: Swatinem/rust-cache@v1
@@ -78,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
@@ -95,7 +100,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
@@ -113,11 +118,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: 1.54.0  # MSRV
+        toolchain: 1.60.0  # MSRV
         profile: minimal
         override: true
         components: clippy
