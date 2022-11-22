@@ -117,3 +117,37 @@ fn reword() {
 
     temp.close().unwrap();
 }
+
+#[test]
+fn test_get_changed_paths_between_trees() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    let plan =
+        git_fixture::TodoList::load(std::path::Path::new("tests/fixtures/branches.yml")).unwrap();
+    plan.run(temp.path()).unwrap();
+
+    let repo = git2::Repository::discover(temp.path()).unwrap();
+
+    {
+        let head_tree = repo.head().unwrap().peel_to_tree().unwrap();
+        let parent_tree = repo
+            .head()
+            .unwrap()
+            .peel_to_commit()
+            .unwrap()
+            .parent(0)
+            .unwrap()
+            .tree()
+            .unwrap();
+        let changed_paths = git2_ext::ops::get_changed_paths_between_trees_fast(
+            &repo,
+            Some(&head_tree),
+            Some(&parent_tree),
+        );
+        assert_eq!(
+            changed_paths,
+            Ok(["file_c.txt".into()].into_iter().collect())
+        );
+    }
+
+    temp.close().unwrap();
+}
