@@ -91,9 +91,19 @@ pub fn cherry_pick(
                     let our_path = conflict
                         .our
                         .as_ref()
-                        .map(|c| bytes2path(&c.path))
-                        .or_else(|| conflict.their.as_ref().map(|c| bytes2path(&c.path)))
-                        .or_else(|| conflict.ancestor.as_ref().map(|c| bytes2path(&c.path)))
+                        .map(|c| crate::bytes::bytes2path(&c.path))
+                        .or_else(|| {
+                            conflict
+                                .their
+                                .as_ref()
+                                .map(|c| crate::bytes::bytes2path(&c.path))
+                        })
+                        .or_else(|| {
+                            conflict
+                                .ancestor
+                                .as_ref()
+                                .map(|c| crate::bytes::bytes2path(&c.path))
+                        })
                         .unwrap_or_else(|| std::path::Path::new("<unknown>"));
                     format!("{}", our_path.display())
                 })
@@ -171,9 +181,19 @@ pub fn squash(
                 let our_path = conflict
                     .our
                     .as_ref()
-                    .map(|c| bytes2path(&c.path))
-                    .or_else(|| conflict.their.as_ref().map(|c| bytes2path(&c.path)))
-                    .or_else(|| conflict.ancestor.as_ref().map(|c| bytes2path(&c.path)))
+                    .map(|c| crate::bytes::bytes2path(&c.path))
+                    .or_else(|| {
+                        conflict
+                            .their
+                            .as_ref()
+                            .map(|c| crate::bytes::bytes2path(&c.path))
+                    })
+                    .or_else(|| {
+                        conflict
+                            .ancestor
+                            .as_ref()
+                            .map(|c| crate::bytes::bytes2path(&c.path))
+                    })
                     .unwrap_or_else(|| std::path::Path::new("<unknown>"));
                 format!("{}", our_path.display())
             })
@@ -216,18 +236,4 @@ pub fn reword(
         &parents,
     )?;
     Ok(new_id)
-}
-
-// From git2 crate
-#[cfg(unix)]
-fn bytes2path(b: &[u8]) -> &std::path::Path {
-    use std::os::unix::prelude::*;
-    std::path::Path::new(std::ffi::OsStr::from_bytes(b))
-}
-
-// From git2 crate
-#[cfg(windows)]
-fn bytes2path(b: &[u8]) -> &std::path::Path {
-    use std::str;
-    std::path::Path::new(str::from_utf8(b).unwrap())
 }
