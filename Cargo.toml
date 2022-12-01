@@ -42,7 +42,7 @@ assert_fs = "1"
 eyre = "0.6"
 snapbox = "0.2"
 regex = "1.5.5"
-criterion = "0.3.5"
+criterion = "0.4.0"
 
 [[bench]]
 harness = false
