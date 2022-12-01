@@ -41,7 +41,7 @@ git-fixture = { version = "0.3", features = ["yaml"] }
 assert_fs = "1"
 eyre = "0.6"
 snapbox = "0.4"
-regex = "1.5.5"
+regex = "1.7.0"
 criterion = "0.4.0"
 
 [[bench]]
