@@ -338,7 +338,7 @@ stderr:
             std::fs::create_dir_all(self.repo_path.join(dir))?;
         }
         let file_path = self.repo_path.join(format!("{}.txt", name));
-        std::fs::write(&file_path, contents)?;
+        std::fs::write(file_path, contents)?;
         Ok(())
     }
 
