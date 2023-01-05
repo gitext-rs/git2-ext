@@ -83,7 +83,7 @@ fn squash_clean() {
             .unwrap();
         let source_id = source.get().target().unwrap();
 
-        let dest_id = git2_ext::ops::squash(&repo, source_id, base_id).unwrap();
+        let dest_id = git2_ext::ops::squash(&repo, source_id, base_id, None).unwrap();
 
         println!("{:#?}", dest_id);
         assert!(!git2_ext::ops::is_dirty(&repo));
@@ -109,7 +109,7 @@ fn reword() {
             .unwrap();
         let feature2_id = feature2.get().target().unwrap();
 
-        let new_id = git2_ext::ops::reword(&repo, feature2_id, "New message").unwrap();
+        let new_id = git2_ext::ops::reword(&repo, feature2_id, "New message", None).unwrap();
 
         println!("{:#?}", new_id);
         assert!(!git2_ext::ops::is_dirty(&repo));
