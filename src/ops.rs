@@ -4,6 +4,7 @@
 //! They serve as both examples on how to use `git2` but also should be usable in some limited
 //! subset of cases.
 
+use bstr::ByteSlice;
 use itertools::Itertools;
 
 /// Lookup the commit ID for `HEAD`
@@ -255,7 +256,7 @@ pub fn commit(
     if let Some(sign) = sign {
         let content = repo.commit_create_buffer(author, committer, message, tree, parents)?;
         let content = std::str::from_utf8(&content).unwrap();
-        let signed = sign.sign(content);
+        let signed = sign.sign(content)?;
         repo.commit_signed(content, &signed, None)
     } else {
         repo.commit(None, author, committer, message, tree, parents)
@@ -266,5 +267,389 @@ pub fn commit(
 ///
 /// See <https://blog.hackeriet.no/signing-git-commits-in-rust/> for an example of what to do.
 pub trait Sign {
-    fn sign(&self, buffer: &str) -> String;
+    fn sign(&self, buffer: &str) -> Result<String, git2::Error>;
+}
+
+pub struct UserSign(UserSignInner);
+
+enum UserSignInner {
+    Gpg(GpgSign),
+    Ssh(SshSign),
+}
+
+impl UserSign {
+    pub fn from_config(
+        repo: &git2::Repository,
+        config: &git2::Config,
+    ) -> Result<Self, git2::Error> {
+        let format = config
+            .get_string("gpg.format")
+            .unwrap_or_else(|_| "openpgp".to_owned());
+        match format.as_str() {
+            "openpgp" => {
+                let program = config
+                    .get_string("gpg.openpgp.program")
+                    .or_else(|_| config.get_string("gpg.program"))
+                    .unwrap_or_else(|_| "gpg".to_owned());
+
+                let signing_key = config.get_string("user.signingkey").or_else(
+                    |_| -> Result<_, git2::Error> {
+                        let sig = repo.signature()?;
+                        Ok(String::from_utf8_lossy(sig.name_bytes()).into_owned())
+                    },
+                )?;
+
+                Ok(UserSign(UserSignInner::Gpg(GpgSign::new(
+                    program,
+                    signing_key,
+                ))))
+            }
+            "x509" => {
+                let program = config
+                    .get_string("gpg.x509.program")
+                    .unwrap_or_else(|_| "gpgsm".to_owned());
+
+                let signing_key = config.get_string("user.signingkey").or_else(
+                    |_| -> Result<_, git2::Error> {
+                        let sig = repo.signature()?;
+                        Ok(String::from_utf8_lossy(sig.name_bytes()).into_owned())
+                    },
+                )?;
+
+                Ok(UserSign(UserSignInner::Gpg(GpgSign::new(
+                    program,
+                    signing_key,
+                ))))
+            }
+            "ssh" => {
+                let program = config
+                    .get_string("gpg.ssh.program")
+                    .unwrap_or_else(|_| "ssh-keygen".to_owned());
+
+                let signing_key = config
+                    .get_string("user.signingkey")
+                    .map(Ok)
+                    .unwrap_or_else(|_| -> Result<_, git2::Error> {
+                        get_default_ssh_signing_key(config)?.map(Ok).unwrap_or_else(
+                            || -> Result<_, git2::Error> {
+                                let sig = repo.signature()?;
+                                Ok(String::from_utf8_lossy(sig.name_bytes()).into_owned())
+                            },
+                        )
+                    })?;
+
+                Ok(UserSign(UserSignInner::Ssh(SshSign::new(
+                    program,
+                    signing_key,
+                ))))
+            }
+            _ => Err(git2::Error::new(
+                git2::ErrorCode::Invalid,
+                git2::ErrorClass::Config,
+                format!("invalid valid for gpg.format: {}", format),
+            )),
+        }
+    }
+}
+
+impl Sign for UserSign {
+    fn sign(&self, buffer: &str) -> Result<String, git2::Error> {
+        match &self.0 {
+            UserSignInner::Gpg(s) => s.sign(buffer),
+            UserSignInner::Ssh(s) => s.sign(buffer),
+        }
+    }
+}
+
+pub struct GpgSign {
+    program: String,
+    signing_key: String,
+}
+
+impl GpgSign {
+    pub fn new(program: String, signing_key: String) -> Self {
+        Self {
+            program,
+            signing_key,
+        }
+    }
+}
+
+impl Sign for GpgSign {
+    fn sign(&self, buffer: &str) -> Result<String, git2::Error> {
+        let output = pipe_command(
+            std::process::Command::new(&self.program)
+                .arg("--status-fd=2")
+                .arg("-bsau")
+                .arg(&self.signing_key),
+            Some(buffer),
+        )
+        .map_err(|e| {
+            git2::Error::new(
+                git2::ErrorCode::GenericError,
+                git2::ErrorClass::Os,
+                format!("{} failed to sign the data: {}", self.program, e),
+            )
+        })?;
+        if !output.status.success() {
+            return Err(git2::Error::new(
+                git2::ErrorCode::GenericError,
+                git2::ErrorClass::Os,
+                format!("{} failed to sign the data", self.program),
+            ));
+        }
+        if output.stderr.find(b"\n[GNUPG:] SIG_CREATED ").is_none() {
+            return Err(git2::Error::new(
+                git2::ErrorCode::GenericError,
+                git2::ErrorClass::Os,
+                format!("{} failed to sign the data", self.program),
+            ));
+        }
+
+        let sig = std::str::from_utf8(&output.stdout).map_err(|e| {
+            git2::Error::new(
+                git2::ErrorCode::GenericError,
+                git2::ErrorClass::Os,
+                format!("{} failed to sign the data: {}", self.program, e),
+            )
+        })?;
+
+        // Strip CR from the line endings, in case we are on Windows.
+        let normalized = remove_cr_after(sig);
+
+        Ok(normalized)
+    }
+}
+
+pub struct SshSign {
+    program: String,
+    signing_key: String,
+}
+
+impl SshSign {
+    pub fn new(program: String, signing_key: String) -> Self {
+        Self {
+            program,
+            signing_key,
+        }
+    }
+}
+
+impl Sign for SshSign {
+    fn sign(&self, buffer: &str) -> Result<String, git2::Error> {
+        let mut literal_key_file = None;
+        let ssh_signing_key_file = if let Some(literal_key) = literal_key(&self.signing_key) {
+            let temp = tempfile::NamedTempFile::new().map_err(|e| {
+                git2::Error::new(
+                    git2::ErrorCode::GenericError,
+                    git2::ErrorClass::Os,
+                    format!("failed writing ssh signing key: {}", e),
+                )
+            })?;
+
+            std::fs::write(temp.path(), literal_key).map_err(|e| {
+                git2::Error::new(
+                    git2::ErrorCode::GenericError,
+                    git2::ErrorClass::Os,
+                    format!("failed writing ssh signing key: {}", e),
+                )
+            })?;
+            let path = temp.path().to_owned();
+            literal_key_file = Some(temp);
+            path
+        } else {
+            fn expanduser(path: &str) -> std::path::PathBuf {
+                // HACK: Need a cross-platform solution
+                std::path::PathBuf::from(path)
+            }
+
+            // We assume a file
+            expanduser(&self.signing_key)
+        };
+
+        let buffer_file = tempfile::NamedTempFile::new().map_err(|e| {
+            git2::Error::new(
+                git2::ErrorCode::GenericError,
+                git2::ErrorClass::Os,
+                format!("failed writing buffer: {}", e),
+            )
+        })?;
+        std::fs::write(buffer_file.path(), buffer).map_err(|e| {
+            git2::Error::new(
+                git2::ErrorCode::GenericError,
+                git2::ErrorClass::Os,
+                format!("failed writing buffer: {}", e),
+            )
+        })?;
+
+        let output = pipe_command(
+            std::process::Command::new(&self.program)
+                .arg("-Y")
+                .arg("sign")
+                .arg("-n")
+                .arg("git")
+                .arg("-f")
+                .arg(&ssh_signing_key_file)
+                .arg(buffer_file.path()),
+            Some(buffer),
+        )
+        .map_err(|e| {
+            git2::Error::new(
+                git2::ErrorCode::GenericError,
+                git2::ErrorClass::Os,
+                format!("{} failed to sign the data: {}", self.program, e),
+            )
+        })?;
+        if !output.status.success() {
+            if output.stderr.find("usage:").is_some() {
+                return Err(git2::Error::new(
+                git2::ErrorCode::GenericError,
+                git2::ErrorClass::Os,
+                "ssh-keygen -Y sign is needed for ssh signing (available in openssh version 8.2p1+)"
+            ));
+            } else {
+                return Err(git2::Error::new(
+                    git2::ErrorCode::GenericError,
+                    git2::ErrorClass::Os,
+                    format!(
+                        "{} failed to sign the data: {}",
+                        self.program,
+                        String::from_utf8_lossy(&output.stderr)
+                    ),
+                ));
+            }
+        }
+
+        let mut ssh_signature_filename = buffer_file.path().as_os_str().to_owned();
+        ssh_signature_filename.push(".sig");
+        let ssh_signature_filename = std::path::PathBuf::from(ssh_signature_filename);
+        let sig = std::fs::read_to_string(&ssh_signature_filename).map_err(|e| {
+            git2::Error::new(
+                git2::ErrorCode::GenericError,
+                git2::ErrorClass::Os,
+                format!(
+                    "failed reading ssh signing data buffer from {}: {}",
+                    ssh_signature_filename.display(),
+                    e
+                ),
+            )
+        })?;
+        // Strip CR from the line endings, in case we are on Windows.
+        let normalized = remove_cr_after(&sig);
+
+        buffer_file.close().map_err(|e| {
+            git2::Error::new(
+                git2::ErrorCode::GenericError,
+                git2::ErrorClass::Os,
+                format!("failed writing buffer: {}", e),
+            )
+        })?;
+        if let Some(literal_key_file) = literal_key_file {
+            literal_key_file.close().map_err(|e| {
+                git2::Error::new(
+                    git2::ErrorCode::GenericError,
+                    git2::ErrorClass::Os,
+                    format!("failed writing ssh signing key: {}", e),
+                )
+            })?;
+        }
+
+        Ok(normalized)
+    }
+}
+
+fn pipe_command(
+    cmd: &mut std::process::Command,
+    stdin: Option<&str>,
+) -> Result<std::process::Output, std::io::Error> {
+    use std::io::Write;
+
+    let mut child = cmd
+        .stdin(if stdin.is_some() {
+            std::process::Stdio::piped()
+        } else {
+            std::process::Stdio::null()
+        })
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()?;
+    if let Some(stdin) = stdin {
+        let mut stdin_sync = child.stdin.take().expect("stdin is piped");
+        write!(stdin_sync, "{}", stdin)?;
+    }
+    child.wait_with_output()
+}
+
+fn remove_cr_after(sig: &str) -> String {
+    let mut normalized = String::new();
+    for line in sig.lines() {
+        normalized.push_str(line);
+        normalized.push('\n');
+    }
+    normalized
+}
+
+fn literal_key(signing_key: &str) -> Option<&str> {
+    if let Some(literal) = signing_key.strip_prefix("key::") {
+        Some(literal)
+    } else if signing_key.starts_with("ssh-") {
+        Some(signing_key)
+    } else {
+        None
+    }
+}
+
+// Returns the first public key from an ssh-agent to use for signing
+fn get_default_ssh_signing_key(config: &git2::Config) -> Result<Option<String>, git2::Error> {
+    let ssh_default_key_command = config
+        .get_string("gpg.ssh.defaultKeyCommand")
+        .map_err(|_| {
+            git2::Error::new(
+                git2::ErrorCode::Invalid,
+                git2::ErrorClass::Config,
+                "either user.signingkey or gpg.ssh.defaultKeyCommand needs to be configured",
+            )
+        })?;
+    let ssh_default_key_args = shlex::split(&ssh_default_key_command).ok_or_else(|| {
+        git2::Error::new(
+            git2::ErrorCode::Invalid,
+            git2::ErrorClass::Config,
+            format!(
+                "malformed gpg.ssh.defaultKeyCommand: {}",
+                ssh_default_key_command
+            ),
+        )
+    })?;
+    if ssh_default_key_args.is_empty() {
+        return Err(git2::Error::new(
+            git2::ErrorCode::Invalid,
+            git2::ErrorClass::Config,
+            format!(
+                "malformed gpg.ssh.defaultKeyCommand: {}",
+                ssh_default_key_command
+            ),
+        ));
+    }
+
+    let Ok(output) = pipe_command(
+            std::process::Command::new(&ssh_default_key_args[0])
+            .args(&ssh_default_key_args[1..]),
+            None,
+        ) else {
+            return Ok(None);
+    };
+
+    let Ok(keys) = std::str::from_utf8(&output.stdout) else {
+            return Ok(None);
+        };
+    let Some((default_key, _)) = keys.split_once('\n') else {
+            return Ok(None);
+    };
+    // We only use `is_literal_ssh_key` here to check validity
+    // The prefix will be stripped when the key is used
+    if literal_key(default_key).is_none() {
+        return Ok(None);
+    }
+
+    Ok(Some(default_key.to_owned()))
 }

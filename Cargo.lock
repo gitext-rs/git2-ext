@@ -65,9 +65,9 @@ dependencies = [
 
 [[package]]
 name = "bstr"
-version = "1.0.1"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fca0852af221f458706eb0725c03e4ed6c46af9ac98e6a689d5e634215d594dd"
+checksum = "b45ea9b00a7b3f2988e9a65ad3917e62123c38dba709b666506207be96d1790b"
 dependencies = [
  "memchr",
  "once_cell",
@@ -344,7 +344,7 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8316938721002656fefc2e819dfd44f78d56bd8d1662064026660a44735c5813"
 dependencies = [
- "bstr 1.0.1",
+ "bstr 1.1.0",
  "derive_more",
  "eyre",
  "git2",
@@ -373,6 +373,7 @@ name = "git2-ext"
 version = "0.2.0"
 dependencies = [
  "assert_fs",
+ "bstr 1.1.0",
  "criterion",
  "eyre",
  "git-fixture",
@@ -380,7 +381,9 @@ dependencies = [
  "itertools",
  "log",
  "regex",
+ "shlex",
  "snapbox",
+ "tempfile",
  "which",
 ]
 
@@ -918,6 +921,12 @@ dependencies = [
  "serde",
  "yaml-rust",
 ]
+
+[[package]]
+name = "shlex"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "43b2853a4d09f215c24cc5489c992ce46052d359b5109343cbafbf26bc62f8a3"
 
 [[package]]
 name = "similar"

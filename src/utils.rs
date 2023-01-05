@@ -22,5 +22,5 @@ fn find_git_bash() -> Option<std::path::PathBuf> {
     let git_path = which::which("git.exe").ok()?;
     let git_dir = git_path.parent()?.parent()?;
     let git_bash = git_dir.join("bin").join("bash.exe");
-    git_bash.is_file().then(|| git_bash)
+    git_bash.is_file().then_some(git_bash)
 }
