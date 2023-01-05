@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Breaking changes
+
+- `Sign::sign` now returns `Result<String, git2::Error>`
+
+### Compatibility
+
+MSRV bumped to 1.64.0
+
+### Features
+
+- `GpgSign` and `SshSign` implementations of `Sign`
+- `UserSign` implementation of `Sign` that does all of the right things based on the config
+
 ## [0.2.0] - 2023-01-05
 
 ### Breaking changes
