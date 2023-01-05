@@ -147,6 +147,7 @@ pub fn squash(
     repo: &git2::Repository,
     head_id: git2::Oid,
     into_id: git2::Oid,
+    sign: Option<&dyn Sign>,
 ) -> Result<git2::Oid, git2::Error> {
     // Based on https://www.pygit2.org/recipes/git-cherry-pick.html
     let head_commit = repo.find_commit(head_id)?;
@@ -206,13 +207,14 @@ pub fn squash(
     }
     let result_id = result_index.write_tree_to(repo)?;
     let result_tree = repo.find_tree(result_id)?;
-    let new_id = repo.commit(
-        None,
+    let new_id = commit(
+        repo,
         &into_commit.author(),
         &into_commit.committer(),
         into_commit.message().unwrap(),
         &result_tree,
         onto_commits,
+        sign,
     )?;
     Ok(new_id)
 }
@@ -222,18 +224,47 @@ pub fn reword(
     repo: &git2::Repository,
     head_id: git2::Oid,
     msg: &str,
+    sign: Option<&dyn Sign>,
 ) -> Result<git2::Oid, git2::Error> {
     let old_commit = repo.find_commit(head_id)?;
     let parents = old_commit.parents().collect::<Vec<_>>();
     let parents = parents.iter().collect::<Vec<_>>();
     let tree = repo.find_tree(old_commit.tree_id())?;
-    let new_id = repo.commit(
-        None,
+    let new_id = commit(
+        repo,
         &old_commit.author(),
         &old_commit.committer(),
         msg,
         &tree,
         &parents,
+        sign,
     )?;
     Ok(new_id)
+}
+
+/// Commit with signing support
+pub fn commit(
+    repo: &git2::Repository,
+    author: &git2::Signature<'_>,
+    committer: &git2::Signature<'_>,
+    message: &str,
+    tree: &git2::Tree<'_>,
+    parents: &[&git2::Commit<'_>],
+    sign: Option<&dyn Sign>,
+) -> Result<git2::Oid, git2::Error> {
+    if let Some(sign) = sign {
+        let content = repo.commit_create_buffer(author, committer, message, tree, parents)?;
+        let content = std::str::from_utf8(&content).unwrap();
+        let signed = sign.sign(content);
+        repo.commit_signed(content, &signed, None)
+    } else {
+        repo.commit(None, author, committer, message, tree, parents)
+    }
+}
+
+/// For signing [commit]s
+///
+/// See <https://blog.hackeriet.no/signing-git-commits-in-rust/> for an example of what to do.
+pub trait Sign {
+    fn sign(&self, buffer: &str) -> String;
 }
