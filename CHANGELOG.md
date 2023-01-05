@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Breaking changes
+
+- `reword` and `squash` gained `sign` argument.  Pass `None` to get the old behavior
+
+### Features
+
+- New `commit` function that handles signing for you
+- Signing support for `reword` and `squash`
+
 ## [0.1.0] - 2022-12-02
 
 ### Features
