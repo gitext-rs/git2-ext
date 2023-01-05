@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.3.0] - 2023-01-05
+
 ### Breaking changes
 
 - `Sign::sign` now returns `Result<String, git2::Error>`
@@ -78,7 +80,8 @@ MSRV bumped to 1.64.0
 - Wrappers around git hooks
 
 <!-- next-url -->
-[Unreleased]: https://github.com/gitext-rs/git2-ext/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/gitext-rs/git2-ext/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/gitext-rs/git2-ext/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/gitext-rs/git2-ext/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/gitext-rs/git2-ext/compare/v0.0.7...v0.1.0
 [0.0.7]: https://github.com/gitext-rs/git2-ext/compare/v0.0.6...v0.0.7
