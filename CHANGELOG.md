@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.2.0] - 2023-01-05
+
 ### Breaking changes
 
 - `reword` and `squash` gained `sign` argument.  Pass `None` to get the old behavior
@@ -63,7 +65,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Wrappers around git hooks
 
 <!-- next-url -->
-[Unreleased]: https://github.com/gitext-rs/git2-ext/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/gitext-rs/git2-ext/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/gitext-rs/git2-ext/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/gitext-rs/git2-ext/compare/v0.0.7...v0.1.0
 [0.0.7]: https://github.com/gitext-rs/git2-ext/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/gitext-rs/git2-ext/compare/v0.0.5...v0.0.6
