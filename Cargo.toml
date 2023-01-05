@@ -10,7 +10,7 @@ readme = "README.md"
 categories = ["command-line-interface"]
 keywords = ["git"]
 edition = "2021"
-rust-version = "1.61.0"  # MSRV
+rust-version = "1.65.0"  # MSRV
 include = [
   "build.rs",
   "src/**/*",
@@ -38,7 +38,6 @@ which = "4"
 bstr = { version = "1.1.0", default-features = false }
 tempfile = "3.3.0"
 shlex = "1.1.0"
-expanduser = "1.2.2"
 
 [dev-dependencies]
 git-fixture = { version = "0.3", features = ["yaml"] }

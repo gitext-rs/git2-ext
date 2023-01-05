@@ -458,14 +458,13 @@ impl Sign for SshSign {
             literal_key_file = Some(temp);
             path
         } else {
+            fn expanduser(path: &str) -> std::path::PathBuf {
+                // HACK: Need a cross-platform solution
+                std::path::PathBuf::from(path)
+            }
+
             // We assume a file
-            expanduser::expanduser(&self.signing_key).map_err(|e| {
-                git2::Error::new(
-                    git2::ErrorCode::GenericError,
-                    git2::ErrorClass::Os,
-                    format!("failed looking up signing file {}: {}", self.signing_key, e),
-                )
-            })?
+            expanduser(&self.signing_key)
         };
 
         let buffer_file = tempfile::NamedTempFile::new().map_err(|e| {
@@ -506,7 +505,7 @@ impl Sign for SshSign {
                 return Err(git2::Error::new(
                 git2::ErrorCode::GenericError,
                 git2::ErrorClass::Os,
-                format!("ssh-keygen -Y sign is needed for ssh signing (available in openssh version 8.2p1+)")
+                "ssh-keygen -Y sign is needed for ssh signing (available in openssh version 8.2p1+)"
             ));
             } else {
                 return Err(git2::Error::new(
