@@ -3,7 +3,7 @@ use std::collections::HashSet;
 fn get_repo() -> git2::Repository {
     let repo_dir =
         std::env::var("PATH_TO_REPO").expect("`PATH_TO_REPO` environment variable not set");
-    git2::Repository::discover(&std::path::PathBuf::from(repo_dir)).unwrap()
+    git2::Repository::discover(std::path::PathBuf::from(repo_dir)).unwrap()
 }
 
 fn bench_get_changed_paths_between_trees(c: &mut criterion::Criterion) {
