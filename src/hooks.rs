@@ -111,7 +111,7 @@ impl Hooks {
 
     /// Run `post-rewrite` hook as if called by `git rebase`
     ///
-    /// The hook should be run after any automatic note copying (see "notes.rewrite.<command>" in
+    /// The hook should be run after any automatic note copying (see `notes.rewrite.<command>` in
     /// git-config(1)) has happened, and thus has access to these notes.
     ///
     /// **changed_shas (old, new):**
