@@ -20,7 +20,7 @@ fn cherry_pick_clean() {
             .unwrap();
         let source_id = source.get().target().unwrap();
 
-        let dest_id = git2_ext::ops::cherry_pick(&repo, base_id, source_id).unwrap();
+        let dest_id = git2_ext::ops::cherry_pick(&repo, base_id, source_id, None).unwrap();
 
         let source_commit = repo.find_commit(source_id).unwrap();
         let dest_commit = repo.find_commit(dest_id).unwrap();
@@ -54,7 +54,7 @@ fn cherry_pick_conflict() {
         let source = repo.find_branch("master", git2::BranchType::Local).unwrap();
         let source_id = source.get().target().unwrap();
 
-        let dest_id = git2_ext::ops::cherry_pick(&repo, base_id, source_id);
+        let dest_id = git2_ext::ops::cherry_pick(&repo, base_id, source_id, None);
 
         println!("{:#?}", dest_id);
         assert!(dest_id.is_err());
