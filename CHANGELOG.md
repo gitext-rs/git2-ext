@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Breaking changes
+
+- `cherry_pick` gained a `sign` argument.  Pass `None` to get the old behavior
+
+### Features
+
+- Allow signing `cherry_pick` operations
+
 ## [0.3.0] - 2023-01-05
 
 ### Breaking changes
