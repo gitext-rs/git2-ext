@@ -51,6 +51,7 @@ pub fn cherry_pick(
     repo: &git2::Repository,
     head_id: git2::Oid,
     cherry_id: git2::Oid,
+    sign: Option<&dyn Sign>,
 ) -> Result<git2::Oid, git2::Error> {
     let cherry_commit = repo.find_commit(cherry_id)?;
     let base_id = match cherry_commit.parent_count() {
@@ -135,7 +136,21 @@ pub fn cherry_pick(
                 Err(err)
             }
         }?;
-        tip_id = commit_id;
+
+        let rebased_commit = repo.find_commit(commit_id).expect("commit succeeded");
+        let tree = rebased_commit.tree()?;
+        let parent_commit = repo.find_commit(head_id).expect("it worked earlier");
+        let signed_id = commit(
+            repo,
+            &rebased_commit.author(),
+            &rebased_commit.committer(),
+            rebased_commit.message().unwrap(),
+            &tree,
+            &[&parent_commit],
+            sign,
+        )?;
+
+        tip_id = signed_id;
     }
     rebase.finish(None)?;
     Ok(tip_id)
