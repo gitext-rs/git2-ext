@@ -117,7 +117,7 @@ pub fn cherry_pick(
             ));
         }
 
-        let mut sig = repo.signature()?;
+        let mut sig = signature(repo)?;
         if let (Some(name), Some(email)) = (sig.name(), sig.email()) {
             // For simple rebases, preserve the original commit time
             sig = git2::Signature::new(name, email, &cherry_commit.time())?.to_owned();
@@ -309,7 +309,7 @@ impl UserSign {
 
                 let signing_key = config.get_string("user.signingkey").or_else(
                     |_| -> Result<_, git2::Error> {
-                        let sig = repo.signature()?;
+                        let sig = signature(repo)?;
                         Ok(sig.to_string())
                     },
                 )?;
@@ -326,7 +326,7 @@ impl UserSign {
 
                 let signing_key = config.get_string("user.signingkey").or_else(
                     |_| -> Result<_, git2::Error> {
-                        let sig = repo.signature()?;
+                        let sig = signature(repo)?;
                         Ok(sig.to_string())
                     },
                 )?;
@@ -347,7 +347,7 @@ impl UserSign {
                     .unwrap_or_else(|_| -> Result<_, git2::Error> {
                         get_default_ssh_signing_key(config)?.map(Ok).unwrap_or_else(
                             || -> Result<_, git2::Error> {
-                                let sig = repo.signature()?;
+                                let sig = signature(repo)?;
                                 Ok(sig.to_string())
                             },
                         )
