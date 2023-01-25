@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- `git2_ext::ops::signature` replacement for `Repository::signature` that respects
+ `GIT_COMMITTER_NAME` and `GIT_COMMITTER_EMAIL`
+
+### Fixes
+
+- For signing and cherry-picking, respect `GIT_COMMITTER_NAME` and `GIT_COMMITTER_EMAIL`
+
 ## [0.4.1] - 2023-01-25
 
 ### Fixes
