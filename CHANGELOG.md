@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Pass correct signature for signing when no key is specified
+
 ## [0.4.0] - 2023-01-12
 
 ### Breaking changes
