@@ -117,7 +117,7 @@ pub fn cherry_pick(
             ));
         }
 
-        let mut sig = repo.signature()?;
+        let mut sig = signature(repo)?;
         if let (Some(name), Some(email)) = (sig.name(), sig.email()) {
             // For simple rebases, preserve the original commit time
             sig = git2::Signature::new(name, email, &cherry_commit.time())?.to_owned();
@@ -309,7 +309,7 @@ impl UserSign {
 
                 let signing_key = config.get_string("user.signingkey").or_else(
                     |_| -> Result<_, git2::Error> {
-                        let sig = repo.signature()?;
+                        let sig = signature(repo)?;
                         Ok(sig.to_string())
                     },
                 )?;
@@ -326,7 +326,7 @@ impl UserSign {
 
                 let signing_key = config.get_string("user.signingkey").or_else(
                     |_| -> Result<_, git2::Error> {
-                        let sig = repo.signature()?;
+                        let sig = signature(repo)?;
                         Ok(sig.to_string())
                     },
                 )?;
@@ -347,7 +347,7 @@ impl UserSign {
                     .unwrap_or_else(|_| -> Result<_, git2::Error> {
                         get_default_ssh_signing_key(config)?.map(Ok).unwrap_or_else(
                             || -> Result<_, git2::Error> {
-                                let sig = repo.signature()?;
+                                let sig = signature(repo)?;
                                 Ok(sig.to_string())
                             },
                         )
@@ -667,4 +667,63 @@ fn get_default_ssh_signing_key(config: &git2::Config) -> Result<Option<String>, 
     }
 
     Ok(Some(default_key.to_owned()))
+}
+
+/// Replacement for [`git2::Repository::signature`] that respects env variables
+pub fn signature(repo: &git2::Repository) -> Result<git2::Signature<'_>, git2::Error> {
+    let config_sig = repo.signature()?;
+
+    let name = std::env::var_os("GIT_COMMITTER_NAME")
+        .map(|os| {
+            os.into_string().map_err(|os| {
+                git2::Error::new(
+                    git2::ErrorCode::Unmerged,
+                    git2::ErrorClass::Invalid,
+                    format!(
+                        "`GIT_COMMITTER_NAME` is not valid UTF-8: {}",
+                        os.to_string_lossy()
+                    ),
+                )
+            })
+        })
+        .unwrap_or_else(|| {
+            config_sig.name().map(ToOwned::to_owned).ok_or_else(|| {
+                git2::Error::new(
+                    git2::ErrorCode::Unmerged,
+                    git2::ErrorClass::Invalid,
+                    format!(
+                        "name is not valid UTF-8: {}",
+                        String::from_utf8_lossy(config_sig.name_bytes())
+                    ),
+                )
+            })
+        })?;
+
+    let email = std::env::var_os("GIT_COMMITTER_EMAIL")
+        .map(|os| {
+            os.into_string().map_err(|os| {
+                git2::Error::new(
+                    git2::ErrorCode::Unmerged,
+                    git2::ErrorClass::Invalid,
+                    format!(
+                        "`GIT_COMMITTER_EMAIL` is not valid UTF-8: {}",
+                        os.to_string_lossy()
+                    ),
+                )
+            })
+        })
+        .unwrap_or_else(|| {
+            config_sig.email().map(ToOwned::to_owned).ok_or_else(|| {
+                git2::Error::new(
+                    git2::ErrorCode::Unmerged,
+                    git2::ErrorClass::Invalid,
+                    format!(
+                        "email is not valid UTF-8: {}",
+                        String::from_utf8_lossy(config_sig.email_bytes())
+                    ),
+                )
+            })
+        })?;
+
+    git2::Signature::new(&name, &email, &config_sig.when())
 }
