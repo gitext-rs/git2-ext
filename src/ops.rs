@@ -310,7 +310,7 @@ impl UserSign {
                 let signing_key = config.get_string("user.signingkey").or_else(
                     |_| -> Result<_, git2::Error> {
                         let sig = repo.signature()?;
-                        Ok(String::from_utf8_lossy(sig.name_bytes()).into_owned())
+                        Ok(sig.to_string())
                     },
                 )?;
 
@@ -327,7 +327,7 @@ impl UserSign {
                 let signing_key = config.get_string("user.signingkey").or_else(
                     |_| -> Result<_, git2::Error> {
                         let sig = repo.signature()?;
-                        Ok(String::from_utf8_lossy(sig.name_bytes()).into_owned())
+                        Ok(sig.to_string())
                     },
                 )?;
 
@@ -348,7 +348,7 @@ impl UserSign {
                         get_default_ssh_signing_key(config)?.map(Ok).unwrap_or_else(
                             || -> Result<_, git2::Error> {
                                 let sig = repo.signature()?;
-                                Ok(String::from_utf8_lossy(sig.name_bytes()).into_owned())
+                                Ok(sig.to_string())
                             },
                         )
                     })?;
