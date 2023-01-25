@@ -307,12 +307,7 @@ impl UserSign {
                     .or_else(|_| config.get_string("gpg.program"))
                     .unwrap_or_else(|_| "gpg".to_owned());
 
-                let signing_key = config.get_string("user.signingkey").or_else(
-                    |_| -> Result<_, git2::Error> {
-                        let sig = repo.signature()?;
-                        Ok(sig.to_string())
-                    },
-                )?;
+                let signing_key = get_git_committer_signature(repo, config)?;
 
                 Ok(UserSign(UserSignInner::Gpg(GpgSign::new(
                     program,
@@ -324,12 +319,7 @@ impl UserSign {
                     .get_string("gpg.x509.program")
                     .unwrap_or_else(|_| "gpgsm".to_owned());
 
-                let signing_key = config.get_string("user.signingkey").or_else(
-                    |_| -> Result<_, git2::Error> {
-                        let sig = repo.signature()?;
-                        Ok(sig.to_string())
-                    },
-                )?;
+                let signing_key = get_git_committer_signature(repo, config)?;
 
                 Ok(UserSign(UserSignInner::Gpg(GpgSign::new(
                     program,
@@ -347,8 +337,7 @@ impl UserSign {
                     .unwrap_or_else(|_| -> Result<_, git2::Error> {
                         get_default_ssh_signing_key(config)?.map(Ok).unwrap_or_else(
                             || -> Result<_, git2::Error> {
-                                let sig = repo.signature()?;
-                                Ok(sig.to_string())
+                                get_git_committer_signature(repo, config)
                             },
                         )
                     })?;
@@ -667,4 +656,24 @@ fn get_default_ssh_signing_key(config: &git2::Config) -> Result<Option<String>, 
     }
 
     Ok(Some(default_key.to_owned()))
+}
+
+fn get_git_committer_signature(
+    repo: &git2::Repository,
+    config: &git2::Config,
+) -> Result<String, git2::Error> {
+    config
+        .get_string("user.signingkey")
+        .or_else(|_| {
+            let user = std::env::var("GIT_COMMITTER_NAME")
+                .or_else(|_| config.get_string("committer.name"))
+                .or_else(|_| config.get_string("user.name"));
+
+            let email = std::env::var("GIT_COMMITTER_EMAIL")
+                .or_else(|_| config.get_string("committer.email"))
+                .or_else(|_| config.get_string("user.email"));
+
+            user.and_then(|user| email.map(|email| format!("{user} <{email}>")))
+        })
+        .or_else(|_| repo.signature().map(|s| s.to_string()))
 }
