@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.4.2] - 2023-01-25
+
 ### Features
 
 - `git2_ext::ops::signature` replacement for `Repository::signature` that respects
@@ -105,7 +107,8 @@ MSRV bumped to 1.64.0
 - Wrappers around git hooks
 
 <!-- next-url -->
-[Unreleased]: https://github.com/gitext-rs/git2-ext/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/gitext-rs/git2-ext/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/gitext-rs/git2-ext/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/gitext-rs/git2-ext/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/gitext-rs/git2-ext/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/gitext-rs/git2-ext/compare/v0.2.0...v0.3.0
