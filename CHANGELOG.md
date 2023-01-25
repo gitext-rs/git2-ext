@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Split out `ops::signature` into `ops::commit_signature` and `ops::author_signature`
+
 ## [0.4.2] - 2023-01-25
 
 ### Features
