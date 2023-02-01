@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.5.0] - 2023-02-01
+
 ### Fixes
 
 - Upgrade git2
@@ -117,7 +119,8 @@ MSRV bumped to 1.64.0
 - Wrappers around git hooks
 
 <!-- next-url -->
-[Unreleased]: https://github.com/gitext-rs/git2-ext/compare/v0.4.3...HEAD
+[Unreleased]: https://github.com/gitext-rs/git2-ext/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/gitext-rs/git2-ext/compare/v0.4.3...v0.5.0
 [0.4.3]: https://github.com/gitext-rs/git2-ext/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/gitext-rs/git2-ext/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/gitext-rs/git2-ext/compare/v0.4.0...v0.4.1
