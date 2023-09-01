@@ -57,8 +57,8 @@ shlex = "1.1.0"
 git-fixture = { version = "0.3.2", features = ["yaml"] }
 assert_fs = "1.0.13"
 eyre = "0.6.8"
-snapbox = "0.4.11"
-regex = "1.8.3"
+snapbox = "0.4.12"
+regex = "1.9.4"
 criterion = "0.5.1"
 
 [[bench]]
