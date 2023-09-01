@@ -378,9 +378,9 @@ dependencies = [
 
 [[package]]
 name = "git-fixture"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e595ea20fdd977deaf9b75a6dc65145e6e20b2bf7e9638a043d191e9edb1619"
+checksum = "87fd056ae6b033706ab9059b5b5f1f05aabb933f5fc4b9551d9a7a39437c750e"
 dependencies = [
  "bstr",
  "derive_more",
