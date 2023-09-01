@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+- Update MSRV to 1.70.0
+
+### Fixes
+
+- Expand range of `git2` versions supported
+
 ## [0.6.0] - 2023-03-30
 
 ### Breaking Changes
