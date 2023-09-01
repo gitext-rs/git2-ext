@@ -647,18 +647,17 @@ fn get_default_ssh_signing_key(config: &git2::Config) -> Result<Option<String>, 
     }
 
     let Ok(output) = pipe_command(
-            std::process::Command::new(&ssh_default_key_args[0])
-            .args(&ssh_default_key_args[1..]),
-            None,
-        ) else {
-            return Ok(None);
+        std::process::Command::new(&ssh_default_key_args[0]).args(&ssh_default_key_args[1..]),
+        None,
+    ) else {
+        return Ok(None);
     };
 
     let Ok(keys) = std::str::from_utf8(&output.stdout) else {
-            return Ok(None);
-        };
+        return Ok(None);
+    };
     let Some((default_key, _)) = keys.split_once('\n') else {
-            return Ok(None);
+        return Ok(None);
     };
     // We only use `is_literal_ssh_key` here to check validity
     // The prefix will be stripped when the key is used
