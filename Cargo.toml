@@ -48,7 +48,7 @@ pre-release-replacements = [
 git2 = { version = ">=0.16, <=0.18", default-features = false }
 log = "0.4.17"
 itertools = "0.11.0"
-which = "4.4.0"
+which = "5.0.0"
 bstr = { version = "1.4.0", default-features = false }
 tempfile = "3.5.0"
 shlex = "1.1.0"
