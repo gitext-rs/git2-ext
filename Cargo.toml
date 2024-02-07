@@ -59,7 +59,7 @@ assert_fs = "1.1.1"
 eyre = "0.6.12"
 snapbox = "0.4.16"
 regex = "1.10.3"
-criterion = "0.5.1"
+divan = "0.1.11"
 
 [[bench]]
 harness = false
