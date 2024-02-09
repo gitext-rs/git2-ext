@@ -122,10 +122,11 @@ pub fn cherry_pick(
             // For simple rebases, preserve the original commit time
             sig = git2::Signature::new(name, email, &cherry_commit.time())?.to_owned();
         }
-        let commit_id = match rebase.commit(None, &sig, None).map_err(|e| {
+        let commit_id = rebase.commit(None, &sig, None).map_err(|e| {
             let _ = rebase.abort();
             e
-        }) {
+        });
+        let commit_id = match commit_id {
             Ok(commit_id) => Ok(commit_id),
             Err(err) => {
                 if err.class() == git2::ErrorClass::Rebase && err.code() == git2::ErrorCode::Applied
