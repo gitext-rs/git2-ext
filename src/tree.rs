@@ -330,6 +330,7 @@ mod tests {
     use crate::testing::make_git;
 
     fn dump_tree_entries(tree: &git2::Tree<'_>) -> String {
+        #[allow(clippy::format_collect)]
         tree.iter()
             .map(|entry| format!("{:?} {:?}\n", entry.name().unwrap(), entry.id()))
             .collect()
