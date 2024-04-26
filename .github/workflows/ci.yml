@@ -155,6 +155,10 @@ jobs:
     - uses: Swatinem/rust-cache@v2
     - name: Install cargo-tarpaulin
       run: cargo install cargo-tarpaulin
+    - name: Configure git
+      run: |
+        git config --global user.name "Test User"
+        git config --global user.email "test_user@example.com"
     - name: Gather coverage
       run: cargo tarpaulin --output-dir coverage --out lcov
     - name: Publish to Coveralls
