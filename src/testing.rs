@@ -21,23 +21,23 @@ const DUMMY_DATE: &str = "Wed 29 Oct 12:34:56 2020 PDT";
 
 /// Wrapper around the Git executable, for testing.
 #[derive(Clone, Debug)]
-pub struct Git {
+pub(crate) struct Git {
     /// The path to the repository on disk. The directory itself must exist,
     /// although it might not have a `.git` folder in it. (Use `Git::init_repo`
     /// to initialize it.)
-    pub repo_path: PathBuf,
+    pub(crate) repo_path: PathBuf,
 
     /// The path to the Git executable on disk. This is important since we test
     /// against multiple Git versions.
-    pub path_to_git: PathBuf,
+    pub(crate) path_to_git: PathBuf,
 }
 
 /// Options for `Git::init_repo_with_options`.
 #[derive(Debug)]
-pub struct GitInitOptions {
+pub(crate) struct GitInitOptions {
     /// If `true`, then `init_repo_with_options` makes an initial commit with
     /// some content.
-    pub make_initial_commit: bool,
+    pub(crate) make_initial_commit: bool,
 }
 
 impl Default for GitInitOptions {
@@ -50,22 +50,19 @@ impl Default for GitInitOptions {
 
 /// Path to the `git` executable on disk to be executed.
 #[derive(Clone)]
-pub struct GitRunInfo {
+pub(crate) struct GitRunInfo {
     /// The path to the Git executable on disk.
-    pub path_to_git: std::path::PathBuf,
+    pub(crate) path_to_git: PathBuf,
 
     /// The working directory that the Git executable should be run in.
-    pub working_directory: std::path::PathBuf,
-
-    /// The environment variables that should be passed to the Git process.
-    pub env: HashMap<std::ffi::OsString, std::ffi::OsString>,
+    pub(crate) working_directory: PathBuf,
 }
 
 impl std::fmt::Debug for GitRunInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "<GitRunInfo path_to_git={:?} working_directory={:?} env=not shown>",
+            "<GitRunInfo path_to_git={:?} working_directory={:?}>",
             self.path_to_git, self.working_directory
         )
     }
@@ -73,24 +70,24 @@ impl std::fmt::Debug for GitRunInfo {
 
 /// Options for `Git::run_with_options`.
 #[derive(Debug, Default)]
-pub struct GitRunOptions {
+pub(crate) struct GitRunOptions {
     /// The timestamp of the command. Mostly useful for `git commit`. This should
     /// be a number like 0, 1, 2, 3...
-    pub time: isize,
+    pub(crate) time: isize,
 
     /// The exit code that `Git` should return.
-    pub expected_exit_code: i32,
+    pub(crate) expected_exit_code: i32,
 
     /// The input to write to the child process's stdin.
-    pub input: Option<String>,
+    pub(crate) input: Option<String>,
 
     /// Additional environment variables to start the process with.
-    pub env: HashMap<String, String>,
+    pub(crate) env: HashMap<String, String>,
 }
 
 /// The parsed version of Git.
 #[derive(Debug, PartialEq, PartialOrd, Eq)]
-pub struct GitVersion(pub isize, pub isize, pub isize);
+pub(crate) struct GitVersion(pub(crate) isize, pub(crate) isize, pub(crate) isize);
 
 impl std::str::FromStr for GitVersion {
     type Err = eyre::Error;
@@ -119,13 +116,11 @@ impl std::str::FromStr for GitVersion {
 
 impl Git {
     /// Constructor.
-    pub fn new(git_run_info: GitRunInfo, repo_path: std::path::PathBuf) -> Self {
+    pub(crate) fn new(git_run_info: GitRunInfo, repo_path: PathBuf) -> Self {
         let GitRunInfo {
             path_to_git,
             // We pass the repo directory when calling `run`.
             working_directory: _,
-            // We manually set the environment when calling `run`.
-            env: _,
         } = git_run_info;
         Git {
             repo_path,
@@ -134,7 +129,7 @@ impl Git {
     }
 
     /// Replace dynamic strings in the output, for testing purposes.
-    pub fn preprocess_output(&self, stdout: String) -> eyre::Result<String> {
+    pub(crate) fn preprocess_output(&self, stdout: String) -> eyre::Result<String> {
         let path_to_git = self
             .path_to_git
             .to_str()
@@ -161,7 +156,7 @@ impl Git {
         // sequences.
         let clear_line_re: Regex = Regex::new(r"(^|\n).*(\r|\x1B\[K)").unwrap();
         let output = clear_line_re
-            .replace_all(&output, |captures: &Captures| {
+            .replace_all(&output, |captures: &Captures<'_>| {
                 // Restore the leading newline, if any.
                 captures[1].to_string()
             })
@@ -171,7 +166,7 @@ impl Git {
     }
 
     /// Get the environment variables needed to run git in the test environment.
-    pub fn get_base_env(&self, time: isize) -> Vec<(OsString, OsString)> {
+    pub(crate) fn get_base_env(&self, time: isize) -> Vec<(OsString, OsString)> {
         // Required for determinism, as these values will be baked into the commit
         // hash.
         let date: OsString = format!("{date} -{time:0>2}", date = DUMMY_DATE, time = time).into();
@@ -284,7 +279,7 @@ stderr:
     }
 
     /// Run a Git command.
-    pub fn run_with_options<S: AsRef<str> + std::fmt::Debug>(
+    pub(crate) fn run_with_options<S: AsRef<str> + std::fmt::Debug>(
         &self,
         args: &[S],
         options: &GitRunOptions,
@@ -296,7 +291,7 @@ stderr:
     }
 
     /// Run a Git command.
-    pub fn run<S: AsRef<str> + std::fmt::Debug>(
+    pub(crate) fn run<S: AsRef<str> + std::fmt::Debug>(
         &self,
         args: &[S],
     ) -> eyre::Result<(String, String)> {
@@ -305,7 +300,7 @@ stderr:
 
     /// Set up a Git repo in the directory and initialize git to work
     /// with it.
-    pub fn init_repo_with_options(&self, options: &GitInitOptions) -> eyre::Result<()> {
+    pub(crate) fn init_repo_with_options(&self, options: &GitInitOptions) -> eyre::Result<()> {
         self.run(&["init"])?;
         self.run(&["config", "user.name", DUMMY_NAME])?;
         self.run(&["config", "user.email", DUMMY_EMAIL])?;
@@ -327,12 +322,12 @@ stderr:
 
     /// Set up a Git repo in the directory and initialize git to work
     /// with it.
-    pub fn init_repo(&self) -> eyre::Result<()> {
+    pub(crate) fn init_repo(&self) -> eyre::Result<()> {
         self.init_repo_with_options(&Default::default())
     }
 
     /// Write the provided contents to the provided file in the repository root.
-    pub fn write_file(&self, name: &str, contents: &str) -> eyre::Result<()> {
+    pub(crate) fn write_file(&self, name: &str, contents: &str) -> eyre::Result<()> {
         let path = PathBuf::from(name);
         if let Some(dir) = path.parent() {
             std::fs::create_dir_all(self.repo_path.join(dir))?;
@@ -344,7 +339,7 @@ stderr:
 
     /// Commit a file with default contents. The `time` argument is used to set
     /// the commit timestamp, which is factored into the commit hash.
-    pub fn commit_file_with_contents(
+    pub(crate) fn commit_file_with_contents(
         &self,
         name: &str,
         time: isize,
@@ -370,19 +365,19 @@ stderr:
 
     /// Commit a file with default contents. The `time` argument is used to set
     /// the commit timestamp, which is factored into the commit hash.
-    pub fn commit_file(&self, name: &str, time: isize) -> eyre::Result<git2::Oid> {
+    pub(crate) fn commit_file(&self, name: &str, time: isize) -> eyre::Result<git2::Oid> {
         self.commit_file_with_contents(name, time, &format!("{} contents\n", name))
     }
 
     /// Get a `Repo` object for this repository.
-    pub fn get_repo(&self) -> eyre::Result<git2::Repository> {
+    pub(crate) fn get_repo(&self) -> eyre::Result<git2::Repository> {
         let repo = git2::Repository::open(&self.repo_path)?;
         Ok(repo)
     }
 }
 
 /// Wrapper around a `Git` instance which cleans up the repository once dropped.
-pub struct GitWrapper {
+pub(crate) struct GitWrapper {
     #[allow(dead_code)]
     repo_dir: TempDir,
     git: Git,
@@ -397,19 +392,18 @@ impl Deref for GitWrapper {
 }
 
 /// Create a temporary directory for testing and a `Git` instance to use with it.
-pub fn make_git() -> eyre::Result<GitWrapper> {
+pub(crate) fn make_git() -> eyre::Result<GitWrapper> {
     let repo_dir = TempDir::new()?;
     let path_to_git = get_path_to_git()?;
     let git_run_info = GitRunInfo {
         path_to_git,
         working_directory: repo_dir.path().to_path_buf(),
-        env: std::env::vars_os().collect(),
     };
     let git = Git::new(git_run_info, repo_dir.path().to_path_buf());
     Ok(GitWrapper { repo_dir, git })
 }
 
-fn get_path_to_git() -> eyre::Result<std::path::PathBuf> {
+fn get_path_to_git() -> eyre::Result<PathBuf> {
     let path = which::which("git")?;
     Ok(path)
 }

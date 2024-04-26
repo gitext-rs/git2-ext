@@ -5,6 +5,8 @@
 //! - The above serves as examples for people needing to write their own implementations
 
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
+#![warn(clippy::print_stderr)]
+#![warn(clippy::print_stdout)]
 
 pub mod hooks;
 pub mod ops;

@@ -49,6 +49,8 @@ impl Hooks {
         stdin: Option<&[u8]>,
         env: &[(&str, &str)],
     ) -> Result<i32, std::io::Error> {
+        const SIGNAL_EXIT_CODE: i32 = 1;
+
         let hook_path = if let Some(hook_path) = self.find_hook(repo, name) {
             hook_path
         } else {
@@ -105,7 +107,6 @@ impl Hooks {
         }
         let exit = process.wait()?;
 
-        const SIGNAL_EXIT_CODE: i32 = 1;
         Ok(exit.code().unwrap_or(SIGNAL_EXIT_CODE))
     }
 
@@ -114,7 +115,7 @@ impl Hooks {
     /// The hook should be run after any automatic note copying (see `notes.rewrite.<command>` in
     /// git-config(1)) has happened, and thus has access to these notes.
     ///
-    /// **changed_shas (old, new):**
+    /// **`changed_shas` (old, new):**
     /// - For the squash and fixup operation, all commits that were squashed are listed as being rewritten to the squashed commit. This means
     ///   that there will be several lines sharing the same new-sha1.
     /// - The commits are must be listed in the order that they were processed by rebase.
@@ -146,7 +147,7 @@ impl Hooks {
 
     /// Run `reference-transaction` hook to signal that all reference updates have been queued to the transaction.
     ///
-    /// **changed_refs (old, new, name):**
+    /// **`changed_refs` (old, new, name):**
     /// - `name` is the full name of the ref
     /// - `old` is zeroed out when force updating the reference regardless of its current value or
     ///   when the reference is to be created anew
@@ -166,7 +167,7 @@ impl Hooks {
 
     /// Run `reference-transaction` hook to signal that all reference updates have been queued to the transaction.
     ///
-    /// **changed_refs (old, new, name):**
+    /// **`changed_refs` (old, new, name):**
     /// - `name` is the full name of the ref
     /// - `old` is zeroed out when force updating the reference regardless of its current value or
     ///   when the reference is to be created anew
@@ -204,7 +205,7 @@ impl Hooks {
 
     /// Run `reference-transaction` hook to signal that all reference updates have been applied
     ///
-    /// **changed_refs (old, new, name):**
+    /// **`changed_refs` (old, new, name):**
     /// - `name` is the full name of the ref
     /// - `old` is zeroed out when force updating the reference regardless of its current value or
     ///   when the reference is to be created anew
@@ -235,7 +236,7 @@ impl Hooks {
 
     /// Run `reference-transaction` hook to signal that no changes have been made
     ///
-    /// **changed_refs (old, new, name):**
+    /// **`changed_refs` (old, new, name):**
     /// - `name` is the full name of the ref
     /// - `old` is zeroed out when force updating the reference regardless of its current value or
     ///   when the reference is to be created anew
