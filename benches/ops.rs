@@ -1,3 +1,5 @@
+#![allow(elided_lifetimes_in_paths)]
+
 #[divan::bench]
 fn bench_get_changed_paths_between_trees(bencher: divan::Bencher) {
     let repo = get_repo();
@@ -14,7 +16,7 @@ fn bench_get_changed_paths_between_trees(bencher: divan::Bencher) {
             Some(&commit_tree),
         )
         .unwrap()
-    })
+    });
 }
 
 fn get_repo() -> git2::Repository {

@@ -39,7 +39,7 @@ pub fn is_dirty(repo: &git2::Repository) -> bool {
             "Repository is dirty: {}",
             status
                 .iter()
-                .flat_map(|s| s.path().map(|s| s.to_owned()))
+                .filter_map(|s| s.path().map(|s| s.to_owned()))
                 .join(", ")
         );
         true
@@ -60,7 +60,7 @@ pub fn cherry_pick(
         _ => cherry_commit
             .parent_ids()
             .find(|id| *id == head_id)
-            .map(Result::Ok)
+            .map(Ok)
             .unwrap_or_else(|| cherry_commit.parent_id(0))?,
     };
     if base_id == head_id {
@@ -182,7 +182,7 @@ pub fn squash(
 
     let onto_commit;
     let onto_commits;
-    let onto_commits: &[&git2::Commit] = if 0 < into_commit.parent_count() {
+    let onto_commits: &[&git2::Commit<'_>] = if 0 < into_commit.parent_count() {
         onto_commit = into_commit.parent(0)?;
         onto_commits = [&onto_commit];
         &onto_commits

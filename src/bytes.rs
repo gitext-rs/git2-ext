@@ -1,7 +1,7 @@
 // From git2 crate
 #[cfg(unix)]
 pub(crate) fn bytes2path(b: &[u8]) -> &std::path::Path {
-    use std::os::unix::prelude::*;
+    use std::os::unix::prelude::OsStrExt;
     std::path::Path::new(std::ffi::OsStr::from_bytes(b))
 }
 

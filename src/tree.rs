@@ -12,13 +12,13 @@ fn get_changed_paths_between_trees_internal(
     repo: &git2::Repository,
     acc: &mut Vec<Vec<std::path::PathBuf>>,
     current_path: &[std::path::PathBuf],
-    lhs: Option<&git2::Tree>,
-    rhs: Option<&git2::Tree>,
+    lhs: Option<&git2::Tree<'_>>,
+    rhs: Option<&git2::Tree<'_>>,
 ) -> Result<(), git2::Error> {
     let lhs_entries = lhs
         .map(|tree| tree.iter().collect_vec())
         .unwrap_or_default();
-    let lhs_entries: HashMap<&[u8], &git2::TreeEntry> = lhs_entries
+    let lhs_entries: HashMap<&[u8], &git2::TreeEntry<'_>> = lhs_entries
         .iter()
         .map(|entry| (entry.name_bytes(), entry))
         .collect();
@@ -26,7 +26,7 @@ fn get_changed_paths_between_trees_internal(
     let rhs_entries = rhs
         .map(|tree| tree.iter().collect_vec())
         .unwrap_or_default();
-    let rhs_entries: HashMap<&[u8], &git2::TreeEntry> = rhs_entries
+    let rhs_entries: HashMap<&[u8], &git2::TreeEntry<'_>> = rhs_entries
         .iter()
         .map(|entry| (entry.name_bytes(), entry))
         .collect();
@@ -36,7 +36,7 @@ fn get_changed_paths_between_trees_internal(
         .chain(rhs_entries.keys())
         .cloned()
         .collect();
-    let entries: HashMap<&[u8], (Option<&git2::TreeEntry>, Option<&git2::TreeEntry>)> =
+    let entries: HashMap<&[u8], (Option<&git2::TreeEntry<'_>>, Option<&git2::TreeEntry<'_>>)> =
         all_entry_names
             .into_iter()
             .map(|entry_name| {
@@ -57,7 +57,9 @@ fn get_changed_paths_between_trees_internal(
             Tree(git2::Oid, i32),
         }
 
-        fn classify_entry(entry: Option<&git2::TreeEntry>) -> Result<ClassifiedEntry, git2::Error> {
+        fn classify_entry(
+            entry: Option<&git2::TreeEntry<'_>>,
+        ) -> Result<ClassifiedEntry, git2::Error> {
             let entry = match entry {
                 Some(entry) => entry,
                 None => return Ok(ClassifiedEntry::Absent),
@@ -193,8 +195,8 @@ fn get_changed_paths_between_trees_internal(
 
 pub fn get_changed_paths_between_trees(
     repo: &git2::Repository,
-    lhs: Option<&git2::Tree>,
-    rhs: Option<&git2::Tree>,
+    lhs: Option<&git2::Tree<'_>>,
+    rhs: Option<&git2::Tree<'_>>,
 ) -> Result<HashSet<std::path::PathBuf>, git2::Error> {
     let mut acc = Vec::new();
     get_changed_paths_between_trees_internal(repo, &mut acc, &Vec::new(), lhs, rhs)?;
@@ -288,7 +290,7 @@ pub fn rebuild_tree<'r>(
 /// an error condition here. We may be referring to a created or deleted path,
 /// which wouldn't exist in one of the pre-/post-patch trees.
 fn remove_entry_if_exists(
-    builder: &mut git2::TreeBuilder,
+    builder: &mut git2::TreeBuilder<'_>,
     name: &std::path::Path,
 ) -> Result<(), git2::Error> {
     if builder.get(name)?.is_some() {

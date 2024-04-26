@@ -1,8 +1,10 @@
 #[test]
 fn cherry_pick_clean() {
     let temp = assert_fs::TempDir::new().unwrap();
-    let plan =
-        git_fixture::TodoList::load(std::path::Path::new("tests/fixtures/branches.yml")).unwrap();
+    let plan = git_fixture::TodoList::load(std::path::Path::new(
+        "tests/testsuite/fixtures/branches.yml",
+    ))
+    .unwrap();
     plan.run(temp.path()).unwrap();
 
     let repo = git2::Repository::discover(temp.path()).unwrap();
@@ -38,8 +40,10 @@ fn cherry_pick_clean() {
 #[test]
 fn cherry_pick_conflict() {
     let temp = assert_fs::TempDir::new().unwrap();
-    let plan =
-        git_fixture::TodoList::load(std::path::Path::new("tests/fixtures/conflict.yml")).unwrap();
+    let plan = git_fixture::TodoList::load(std::path::Path::new(
+        "tests/testsuite/fixtures/conflict.yml",
+    ))
+    .unwrap();
     plan.run(temp.path()).unwrap();
 
     let repo = git2::Repository::discover(temp.path()).unwrap();
@@ -67,8 +71,10 @@ fn cherry_pick_conflict() {
 #[test]
 fn squash_clean() {
     let temp = assert_fs::TempDir::new().unwrap();
-    let plan =
-        git_fixture::TodoList::load(std::path::Path::new("tests/fixtures/branches.yml")).unwrap();
+    let plan = git_fixture::TodoList::load(std::path::Path::new(
+        "tests/testsuite/fixtures/branches.yml",
+    ))
+    .unwrap();
     plan.run(temp.path()).unwrap();
 
     let repo = git2::Repository::discover(temp.path()).unwrap();
@@ -95,8 +101,10 @@ fn squash_clean() {
 #[test]
 fn reword() {
     let temp = assert_fs::TempDir::new().unwrap();
-    let plan =
-        git_fixture::TodoList::load(std::path::Path::new("tests/fixtures/branches.yml")).unwrap();
+    let plan = git_fixture::TodoList::load(std::path::Path::new(
+        "tests/testsuite/fixtures/branches.yml",
+    ))
+    .unwrap();
     plan.run(temp.path()).unwrap();
 
     let repo = git2::Repository::discover(temp.path()).unwrap();
