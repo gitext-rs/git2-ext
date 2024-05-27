@@ -127,7 +127,7 @@ shlex = "1.1.0"
 git-fixture = { version = "0.3.4", features = ["yaml"] }
 assert_fs = "1.1.1"
 eyre = "0.6.12"
-snapbox = "0.5.9"
+snapbox = "0.5.14"
 regex = "1.10.4"
 divan = "0.1.14"
 automod = "1.0.14"
