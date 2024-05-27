@@ -360,12 +360,16 @@ mod tests {
         let head_commit = repo.find_commit(head_oid)?;
         let head_tree = head_commit.tree()?;
 
-        assert_data_eq!(dump_tree_entries(&head_tree), str![[r#"
-            "bar" 778e23a1e80b1feb10e00b15b29a33315929c5b5
-            "foo.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
-            "initial.txt" 63af22885f8665a312ba8b83db722134f1f8290d
-            "xyzzy.txt" 7c465afc533f95ff7d2c91e18921f94aac8292fc
-        "#]]);
+        assert_data_eq!(
+            dump_tree_entries(&head_tree),
+            str![[r#"
+"bar" 778e23a1e80b1feb10e00b15b29a33315929c5b5
+"foo.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
+"initial.txt" 63af22885f8665a312ba8b83db722134f1f8290d
+"xyzzy.txt" 7c465afc533f95ff7d2c91e18921f94aac8292fc
+
+"#]]
+        );
 
         {
             let hydrated_tree = {
@@ -385,12 +389,16 @@ mod tests {
                 })?;
                 repo.find_tree(hydrated_tree_oid)?
             };
-            assert_data_eq!(dump_tree_entries(&hydrated_tree), str![[r#"
-                "bar" 778e23a1e80b1feb10e00b15b29a33315929c5b5
-                "foo-copy.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
-                "initial.txt" 63af22885f8665a312ba8b83db722134f1f8290d
-                "xyzzy.txt" 7c465afc533f95ff7d2c91e18921f94aac8292fc
-            "#]]);
+            assert_data_eq!(
+                dump_tree_entries(&hydrated_tree),
+                str![[r#"
+"bar" 778e23a1e80b1feb10e00b15b29a33315929c5b5
+"foo-copy.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
+"initial.txt" 63af22885f8665a312ba8b83db722134f1f8290d
+"xyzzy.txt" 7c465afc533f95ff7d2c91e18921f94aac8292fc
+
+"#]]
+            );
         }
 
         {
@@ -402,12 +410,16 @@ mod tests {
                 })?;
                 repo.find_tree(hydrated_tree_oid)?
             };
-            assert_data_eq!(dump_tree_entries(&hydrated_tree), str![[r#"
-                "bar" 08ee88e1c53fbd01ab76f136a4f2c9d759b981d0
-                "foo.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
-                "initial.txt" 63af22885f8665a312ba8b83db722134f1f8290d
-                "xyzzy.txt" 7c465afc533f95ff7d2c91e18921f94aac8292fc
-            "#]]);
+            assert_data_eq!(
+                dump_tree_entries(&hydrated_tree),
+                str![[r#"
+"bar" 08ee88e1c53fbd01ab76f136a4f2c9d759b981d0
+"foo.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
+"initial.txt" 63af22885f8665a312ba8b83db722134f1f8290d
+"xyzzy.txt" 7c465afc533f95ff7d2c91e18921f94aac8292fc
+
+"#]]
+            );
         }
 
         {
@@ -420,11 +432,15 @@ mod tests {
                 })?;
                 repo.find_tree(hydrated_tree_oid)?
             };
-            assert_data_eq!(dump_tree_entries(&hydrated_tree), str![[r#"
-                "foo.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
-                "initial.txt" 63af22885f8665a312ba8b83db722134f1f8290d
-                "xyzzy.txt" 7c465afc533f95ff7d2c91e18921f94aac8292fc
-            "#]]);
+            assert_data_eq!(
+                dump_tree_entries(&hydrated_tree),
+                str![[r#"
+"foo.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
+"initial.txt" 63af22885f8665a312ba8b83db722134f1f8290d
+"xyzzy.txt" 7c465afc533f95ff7d2c91e18921f94aac8292fc
+
+"#]]
+            );
         }
 
         {
@@ -437,10 +453,14 @@ mod tests {
                 ],
             )?;
             let dehydrated_tree = repo.find_tree(dehydrated_tree_oid)?;
-            assert_data_eq!(dump_tree_entries(&dehydrated_tree), str![[r#"
-                "bar" 08ee88e1c53fbd01ab76f136a4f2c9d759b981d0
-                "foo.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
-            "#]]);
+            assert_data_eq!(
+                dump_tree_entries(&dehydrated_tree),
+                str![[r#"
+"bar" 08ee88e1c53fbd01ab76f136a4f2c9d759b981d0
+"foo.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
+
+"#]]
+            );
         }
 
         Ok(())
@@ -469,11 +489,15 @@ mod tests {
             .collect::<Vec<_>>();
         changed_paths.sort();
 
-        assert_data_eq!(changed_paths.to_debug(), str![[r#"
-            [
-                "initial.txt",
-            ]
-        "#]]);
+        assert_data_eq!(
+            changed_paths.to_debug(),
+            str![[r#"
+[
+    "initial.txt",
+]
+
+"#]]
+        );
 
         Ok(())
     }
