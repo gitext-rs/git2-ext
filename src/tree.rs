@@ -327,6 +327,10 @@ pub fn filter_tree<'r>(
 
 #[cfg(test)]
 mod tests {
+    use snapbox::assert_data_eq;
+    use snapbox::prelude::*;
+    use snapbox::str;
+
     use super::*;
 
     use crate::testing::make_git;
@@ -356,13 +360,15 @@ mod tests {
         let head_commit = repo.find_commit(head_oid)?;
         let head_tree = head_commit.tree()?;
 
-        snapbox::assert_eq(
-            r#""bar" 778e23a1e80b1feb10e00b15b29a33315929c5b5
+        assert_data_eq!(
+            dump_tree_entries(&head_tree),
+            str![[r#"
+"bar" 778e23a1e80b1feb10e00b15b29a33315929c5b5
 "foo.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
 "initial.txt" 63af22885f8665a312ba8b83db722134f1f8290d
 "xyzzy.txt" 7c465afc533f95ff7d2c91e18921f94aac8292fc
-"#,
-            dump_tree_entries(&head_tree),
+
+"#]]
         );
 
         {
@@ -383,13 +389,15 @@ mod tests {
                 })?;
                 repo.find_tree(hydrated_tree_oid)?
             };
-            snapbox::assert_eq(
-                r#""bar" 778e23a1e80b1feb10e00b15b29a33315929c5b5
+            assert_data_eq!(
+                dump_tree_entries(&hydrated_tree),
+                str![[r#"
+"bar" 778e23a1e80b1feb10e00b15b29a33315929c5b5
 "foo-copy.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
 "initial.txt" 63af22885f8665a312ba8b83db722134f1f8290d
 "xyzzy.txt" 7c465afc533f95ff7d2c91e18921f94aac8292fc
-"#,
-                dump_tree_entries(&hydrated_tree),
+
+"#]]
             );
         }
 
@@ -402,13 +410,15 @@ mod tests {
                 })?;
                 repo.find_tree(hydrated_tree_oid)?
             };
-            snapbox::assert_eq(
-                r#""bar" 08ee88e1c53fbd01ab76f136a4f2c9d759b981d0
+            assert_data_eq!(
+                dump_tree_entries(&hydrated_tree),
+                str![[r#"
+"bar" 08ee88e1c53fbd01ab76f136a4f2c9d759b981d0
 "foo.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
 "initial.txt" 63af22885f8665a312ba8b83db722134f1f8290d
 "xyzzy.txt" 7c465afc533f95ff7d2c91e18921f94aac8292fc
-"#,
-                dump_tree_entries(&hydrated_tree),
+
+"#]]
             );
         }
 
@@ -422,12 +432,14 @@ mod tests {
                 })?;
                 repo.find_tree(hydrated_tree_oid)?
             };
-            snapbox::assert_eq(
-                r#""foo.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
+            assert_data_eq!(
+                dump_tree_entries(&hydrated_tree),
+                str![[r#"
+"foo.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
 "initial.txt" 63af22885f8665a312ba8b83db722134f1f8290d
 "xyzzy.txt" 7c465afc533f95ff7d2c91e18921f94aac8292fc
-"#,
-                dump_tree_entries(&hydrated_tree),
+
+"#]]
             );
         }
 
@@ -441,11 +453,13 @@ mod tests {
                 ],
             )?;
             let dehydrated_tree = repo.find_tree(dehydrated_tree_oid)?;
-            snapbox::assert_eq(
-                r#""bar" 08ee88e1c53fbd01ab76f136a4f2c9d759b981d0
-"foo.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
-"#,
+            assert_data_eq!(
                 dump_tree_entries(&dehydrated_tree),
+                str![[r#"
+"bar" 08ee88e1c53fbd01ab76f136a4f2c9d759b981d0
+"foo.txt" 19102815663d23f8b75a47e7a01965dcdc96468c
+
+"#]]
             );
         }
 
@@ -475,7 +489,15 @@ mod tests {
             .collect::<Vec<_>>();
         changed_paths.sort();
 
-        snapbox::assert_eq(r#"["initial.txt"]"#, format!("{:?}", changed_paths));
+        assert_data_eq!(
+            changed_paths.to_debug(),
+            str![[r#"
+[
+    "initial.txt",
+]
+
+"#]]
+        );
 
         Ok(())
     }
