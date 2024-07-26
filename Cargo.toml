@@ -130,6 +130,9 @@ regex = "1.10.4"
 divan = "0.1.14"
 automod = "1.0.14"
 
+[target.'cfg(any())'.dependencies]
+pkg-config = "0.3.27"  # HACK: bad minimal dep in libgit2-sys
+
 [[bench]]
 harness = false
 name = "ops"

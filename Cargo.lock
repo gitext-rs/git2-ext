@@ -327,6 +327,7 @@ dependencies = [
  "git2",
  "itertools 0.13.0",
  "log",
+ "pkg-config",
  "regex",
  "shlex",
  "snapbox",
