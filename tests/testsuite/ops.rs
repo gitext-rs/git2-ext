@@ -60,7 +60,7 @@ fn cherry_pick_conflict() {
 
         let dest_id = git2_ext::ops::cherry_pick(&repo, base_id, source_id, None);
 
-        println!("{:#?}", dest_id);
+        println!("{dest_id:#?}");
         assert!(dest_id.is_err());
         assert!(!git2_ext::ops::is_dirty(&repo));
     }
@@ -91,7 +91,7 @@ fn squash_clean() {
 
         let dest_id = git2_ext::ops::squash(&repo, source_id, base_id, None).unwrap();
 
-        println!("{:#?}", dest_id);
+        println!("{dest_id:#?}");
         assert!(!git2_ext::ops::is_dirty(&repo));
     }
 
@@ -119,7 +119,7 @@ fn reword() {
 
         let new_id = git2_ext::ops::reword(&repo, feature2_id, "New message", None).unwrap();
 
-        println!("{:#?}", new_id);
+        println!("{new_id:#?}");
         assert!(!git2_ext::ops::is_dirty(&repo));
     }
 

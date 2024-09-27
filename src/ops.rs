@@ -113,7 +113,7 @@ pub fn cherry_pick(
             return Err(git2::Error::new(
                 git2::ErrorCode::Unmerged,
                 git2::ErrorClass::Index,
-                format!("cherry-pick conflicts:\n  {}\n", conflicts),
+                format!("cherry-pick conflicts:\n  {conflicts}\n"),
             ));
         }
 
@@ -219,7 +219,7 @@ pub fn squash(
         return Err(git2::Error::new(
             git2::ErrorCode::Unmerged,
             git2::ErrorClass::Index,
-            format!("squash conflicts:\n  {}\n", conflicts),
+            format!("squash conflicts:\n  {conflicts}\n"),
         ));
     }
     let result_id = result_index.write_tree_to(repo)?;
@@ -362,7 +362,7 @@ impl UserSign {
             _ => Err(git2::Error::new(
                 git2::ErrorCode::Invalid,
                 git2::ErrorClass::Config,
-                format!("invalid valid for gpg.format: {}", format),
+                format!("invalid valid for gpg.format: {format}"),
             )),
         }
     }
@@ -459,7 +459,7 @@ impl Sign for SshSign {
                 git2::Error::new(
                     git2::ErrorCode::GenericError,
                     git2::ErrorClass::Os,
-                    format!("failed writing ssh signing key: {}", e),
+                    format!("failed writing ssh signing key: {e}"),
                 )
             })?;
 
@@ -467,7 +467,7 @@ impl Sign for SshSign {
                 git2::Error::new(
                     git2::ErrorCode::GenericError,
                     git2::ErrorClass::Os,
-                    format!("failed writing ssh signing key: {}", e),
+                    format!("failed writing ssh signing key: {e}"),
                 )
             })?;
             let path = temp.path().to_owned();
@@ -487,14 +487,14 @@ impl Sign for SshSign {
             git2::Error::new(
                 git2::ErrorCode::GenericError,
                 git2::ErrorClass::Os,
-                format!("failed writing buffer: {}", e),
+                format!("failed writing buffer: {e}"),
             )
         })?;
         std::fs::write(buffer_file.path(), buffer).map_err(|e| {
             git2::Error::new(
                 git2::ErrorCode::GenericError,
                 git2::ErrorClass::Os,
-                format!("failed writing buffer: {}", e),
+                format!("failed writing buffer: {e}"),
             )
         })?;
 
@@ -557,7 +557,7 @@ impl Sign for SshSign {
             git2::Error::new(
                 git2::ErrorCode::GenericError,
                 git2::ErrorClass::Os,
-                format!("failed writing buffer: {}", e),
+                format!("failed writing buffer: {e}"),
             )
         })?;
         if let Some(literal_key_file) = literal_key_file {
@@ -565,7 +565,7 @@ impl Sign for SshSign {
                 git2::Error::new(
                     git2::ErrorCode::GenericError,
                     git2::ErrorClass::Os,
-                    format!("failed writing ssh signing key: {}", e),
+                    format!("failed writing ssh signing key: {e}"),
                 )
             })?;
         }
@@ -591,7 +591,7 @@ fn pipe_command(
         .spawn()?;
     if let Some(stdin) = stdin {
         let mut stdin_sync = child.stdin.take().expect("stdin is piped");
-        write!(stdin_sync, "{}", stdin)?;
+        write!(stdin_sync, "{stdin}")?;
     }
     child.wait_with_output()
 }
@@ -630,20 +630,14 @@ fn get_default_ssh_signing_key(config: &git2::Config) -> Result<Option<String>, 
         git2::Error::new(
             git2::ErrorCode::Invalid,
             git2::ErrorClass::Config,
-            format!(
-                "malformed gpg.ssh.defaultKeyCommand: {}",
-                ssh_default_key_command
-            ),
+            format!("malformed gpg.ssh.defaultKeyCommand: {ssh_default_key_command}"),
         )
     })?;
     if ssh_default_key_args.is_empty() {
         return Err(git2::Error::new(
             git2::ErrorCode::Invalid,
             git2::ErrorClass::Config,
-            format!(
-                "malformed gpg.ssh.defaultKeyCommand: {}",
-                ssh_default_key_command
-            ),
+            format!("malformed gpg.ssh.defaultKeyCommand: {ssh_default_key_command}"),
         ));
     }
 

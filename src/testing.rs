@@ -169,7 +169,7 @@ impl Git {
     pub(crate) fn get_base_env(&self, time: isize) -> Vec<(OsString, OsString)> {
         // Required for determinism, as these values will be baked into the commit
         // hash.
-        let date: OsString = format!("{date} -{time:0>2}", date = DUMMY_DATE, time = time).into();
+        let date: OsString = format!("{DUMMY_DATE} -{time:0>2}").into();
 
         // Fake "editor" which accepts the default contents of any commit
         // messages. Usually, we can set this with `git commit -m`, but we have
@@ -332,7 +332,7 @@ stderr:
         if let Some(dir) = path.parent() {
             std::fs::create_dir_all(self.repo_path.join(dir))?;
         }
-        let file_path = self.repo_path.join(format!("{}.txt", name));
+        let file_path = self.repo_path.join(format!("{name}.txt"));
         std::fs::write(file_path, contents)?;
         Ok(())
     }
@@ -348,7 +348,7 @@ stderr:
         self.write_file(name, contents)?;
         self.run(&["add", "."])?;
         self.run_with_options(
-            &["commit", "-m", &format!("create {}.txt", name)],
+            &["commit", "-m", &format!("create {name}.txt")],
             &GitRunOptions {
                 time,
                 ..Default::default()
@@ -366,7 +366,7 @@ stderr:
     /// Commit a file with default contents. The `time` argument is used to set
     /// the commit timestamp, which is factored into the commit hash.
     pub(crate) fn commit_file(&self, name: &str, time: isize) -> eyre::Result<git2::Oid> {
-        self.commit_file_with_contents(name, time, &format!("{} contents\n", name))
+        self.commit_file_with_contents(name, time, &format!("{name} contents\n"))
     }
 
     /// Get a `Repo` object for this repository.
