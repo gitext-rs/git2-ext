@@ -89,7 +89,7 @@ impl Hooks {
 
         let mut cmd = std::process::Command::new(sh_path);
         cmd.arg("-c")
-            .arg(format!("{} \"$@\"", bin_name))
+            .arg(format!("{bin_name} \"$@\""))
             .arg(bin_name) // "$@" expands "$1" "$2" "$3" ... but we also must specify $0.
             .args(args)
             .env("PATH", path)
@@ -131,7 +131,7 @@ impl Hooks {
         let mut stdin = String::new();
         for (old_oid, new_oid) in changed_oids {
             use std::fmt::Write;
-            writeln!(stdin, "{} {}", old_oid, new_oid).expect("Always writeable");
+            writeln!(stdin, "{old_oid} {new_oid}").expect("Always writeable");
         }
 
         match self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[]) {
@@ -188,7 +188,7 @@ impl Hooks {
         let mut stdin = String::new();
         for (old_oid, new_oid, ref_name) in changed_refs {
             use std::fmt::Write;
-            writeln!(stdin, "{} {} {}", old_oid, new_oid, ref_name).expect("Always writeable");
+            writeln!(stdin, "{old_oid} {new_oid} {ref_name}").expect("Always writeable");
         }
 
         let code = self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[])?;
@@ -198,7 +198,7 @@ impl Hooks {
             log::trace!("Hook `{}` failed with code {}", name, code);
             Err(std::io::Error::new(
                 std::io::ErrorKind::Interrupted,
-                format!("`{}` hook failed with code {}", name, code),
+                format!("`{name}` hook failed with code {code}"),
             ))
         }
     }
@@ -220,7 +220,7 @@ impl Hooks {
         let mut stdin = String::new();
         for (old_oid, new_oid, ref_name) in changed_refs {
             use std::fmt::Write;
-            writeln!(stdin, "{} {} {}", old_oid, new_oid, ref_name).expect("Always writeable");
+            writeln!(stdin, "{old_oid} {new_oid} {ref_name}").expect("Always writeable");
         }
 
         match self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[]) {
@@ -251,7 +251,7 @@ impl Hooks {
         let mut stdin = String::new();
         for (old_oid, new_oid, ref_name) in changed_refs {
             use std::fmt::Write;
-            writeln!(stdin, "{} {} {}", old_oid, new_oid, ref_name).expect("Always writeable");
+            writeln!(stdin, "{old_oid} {new_oid} {ref_name}").expect("Always writeable");
         }
 
         match self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[]) {
