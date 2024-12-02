@@ -155,7 +155,7 @@ impl Hooks {
         &'t self,
         repo: &'t git2::Repository,
         changed_refs: &'t [(git2::Oid, git2::Oid, &'t str)],
-    ) -> Result<ReferenceTransaction<'_>, std::io::Error> {
+    ) -> Result<ReferenceTransaction<'t>, std::io::Error> {
         self.run_reference_transaction_prepare(repo, changed_refs)?;
 
         Ok(ReferenceTransaction {
@@ -272,7 +272,7 @@ pub struct ReferenceTransaction<'t> {
     changed_refs: &'t [(git2::Oid, git2::Oid, &'t str)],
 }
 
-impl<'t> ReferenceTransaction<'t> {
+impl ReferenceTransaction<'_> {
     pub fn committed(self) {
         let Self {
             hook,
@@ -292,7 +292,7 @@ impl<'t> ReferenceTransaction<'t> {
     }
 }
 
-impl<'t> Drop for ReferenceTransaction<'t> {
+impl Drop for ReferenceTransaction<'_> {
     fn drop(&mut self) {
         self.hook
             .run_reference_transaction_aborted(self.repo, self.changed_refs);
