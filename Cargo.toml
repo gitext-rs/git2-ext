@@ -117,7 +117,7 @@ pre-release-replacements = [
 [dependencies]
 git2 = { version = ">=0.16, <=0.18", default-features = false }
 log = "0.4.17"
-itertools = "0.13.0"
+itertools = "0.14.0"
 which = "7.0.0"
 bstr = { version = "1.4.0", default-features = false }
 tempfile = "3.5.0"
