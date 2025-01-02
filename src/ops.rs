@@ -80,9 +80,8 @@ pub fn cherry_pick(
 
     let mut tip_id = head_id;
     while let Some(op) = rebase.next() {
-        op.map_err(|e| {
+        op.inspect_err(|_err| {
             let _ = rebase.abort();
-            e
         })?;
         let inmemory_index = rebase.inmemory_index().unwrap();
         if inmemory_index.has_conflicts() {
@@ -122,9 +121,8 @@ pub fn cherry_pick(
             // For simple rebases, preserve the original commit time
             sig = git2::Signature::new(name, email, &cherry_commit.time())?.to_owned();
         }
-        let commit_id = rebase.commit(None, &sig, None).map_err(|e| {
+        let commit_id = rebase.commit(None, &sig, None).inspect_err(|_err| {
             let _ = rebase.abort();
-            e
         });
         let commit_id = match commit_id {
             Ok(commit_id) => Ok(commit_id),
