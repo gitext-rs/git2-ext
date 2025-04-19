@@ -115,7 +115,7 @@ pre-release-replacements = [
 ]
 
 [dependencies]
-git2 = { version = ">=0.16, <=0.18", default-features = false }
+git2 = { version = "0.20.0", default-features = false }
 log = "0.4.17"
 itertools = "0.14.0"
 which = "7.0.0"
@@ -124,7 +124,7 @@ tempfile = "3.5.0"
 shlex = "1.1.0"
 
 [dev-dependencies]
-git-fixture = { version = "0.3.4", features = ["yaml"] }
+git-fixture = { git = "https://github.com/gitext-rs/git-fixture.git", features = ["yaml"] }
 assert_fs = "1.1.1"
 eyre = "0.6.12"
 snapbox = "0.6.0"
