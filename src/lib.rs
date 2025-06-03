@@ -17,3 +17,7 @@ pub(crate) mod bytes;
 
 #[cfg(test)]
 mod testing;
+
+#[doc = include_str!("../README.md")]
+#[cfg(doctest)]
+pub struct ReadmeDoctests;
