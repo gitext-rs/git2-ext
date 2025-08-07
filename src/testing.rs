@@ -85,35 +85,6 @@ pub(crate) struct GitRunOptions {
     pub(crate) env: HashMap<String, String>,
 }
 
-/// The parsed version of Git.
-#[derive(Debug, PartialEq, PartialOrd, Eq)]
-pub(crate) struct GitVersion(pub(crate) isize, pub(crate) isize, pub(crate) isize);
-
-impl std::str::FromStr for GitVersion {
-    type Err = eyre::Error;
-
-    fn from_str(output: &str) -> eyre::Result<GitVersion> {
-        let output = output.trim();
-        let words = output.split(&[' ', '-'][..]).collect::<Vec<&str>>();
-        let version_str = match &words.as_slice() {
-            [_git, _version, version_str, ..] => version_str,
-            _ => eyre::bail!("Could not parse Git version output: {:?}", output),
-        };
-        match version_str.split('.').collect::<Vec<&str>>().as_slice() {
-            [major, minor, patch, ..] => {
-                let major = major.parse()?;
-                let minor = minor.parse()?;
-
-                // Example version without a real patch number: `2.33.GIT`.
-                let patch: isize = patch.parse().unwrap_or_default();
-
-                Ok(GitVersion(major, minor, patch))
-            }
-            _ => eyre::bail!("Could not parse Git version string: {}", version_str),
-        }
-    }
-}
-
 impl Git {
     /// Constructor.
     pub(crate) fn new(git_run_info: GitRunInfo, repo_path: PathBuf) -> Self {
