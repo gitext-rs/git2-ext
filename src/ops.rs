@@ -517,10 +517,10 @@ impl Sign for SshSign {
         if !output.status.success() {
             if output.stderr.find("usage:").is_some() {
                 return Err(git2::Error::new(
-                git2::ErrorCode::GenericError,
-                git2::ErrorClass::Os,
-                "ssh-keygen -Y sign is needed for ssh signing (available in openssh version 8.2p1+)"
-            ));
+                    git2::ErrorCode::GenericError,
+                    git2::ErrorClass::Os,
+                    "ssh-keygen -Y sign is needed for ssh signing (available in openssh version 8.2p1+)",
+                ));
             } else {
                 return Err(git2::Error::new(
                     git2::ErrorCode::GenericError,
