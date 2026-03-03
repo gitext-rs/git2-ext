@@ -129,7 +129,7 @@ pub fn cherry_pick(
             Err(err) => {
                 if err.class() == git2::ErrorClass::Rebase && err.code() == git2::ErrorCode::Applied
                 {
-                    log::trace!("Skipping {}, already applied to {}", cherry_id, head_id);
+                    log::trace!("Skipping {cherry_id}, already applied to {head_id}");
                     return Ok(tip_id);
                 }
                 Err(err)
