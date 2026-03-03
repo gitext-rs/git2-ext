@@ -137,10 +137,10 @@ impl Hooks {
         match self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[]) {
             Ok(0) => {}
             Ok(code) => {
-                log::trace!("Hook `{}` failed with code {}", name, code);
+                log::trace!("Hook `{name}` failed with code {code}");
             }
             Err(err) => {
-                log::trace!("Hook `{}` failed with {}", name, err);
+                log::trace!("Hook `{name}` failed with {err}");
             }
         }
     }
@@ -195,7 +195,7 @@ impl Hooks {
         if code == 0 {
             Ok(())
         } else {
-            log::trace!("Hook `{}` failed with code {}", name, code);
+            log::trace!("Hook `{name}` failed with code {code}");
             Err(std::io::Error::new(
                 std::io::ErrorKind::Interrupted,
                 format!("`{name}` hook failed with code {code}"),
@@ -226,10 +226,10 @@ impl Hooks {
         match self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[]) {
             Ok(0) => {}
             Ok(code) => {
-                log::trace!("Hook `{}` failed with code {}", name, code);
+                log::trace!("Hook `{name}` failed with code {code}");
             }
             Err(err) => {
-                log::trace!("Hook `{}` failed with {}", name, err);
+                log::trace!("Hook `{name}` failed with {err}");
             }
         }
     }
@@ -257,10 +257,10 @@ impl Hooks {
         match self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[]) {
             Ok(0) => {}
             Ok(code) => {
-                log::trace!("Hook `{}` failed with code {}", name, code);
+                log::trace!("Hook `{name}` failed with code {code}");
             }
             Err(err) => {
-                log::trace!("Hook `{}` failed with {}", name, err);
+                log::trace!("Hook `{name}` failed with {err}");
             }
         }
     }
