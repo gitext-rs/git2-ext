@@ -131,7 +131,7 @@ impl Hooks {
         let mut stdin = String::new();
         for (old_oid, new_oid) in changed_oids {
             use std::fmt::Write;
-            writeln!(stdin, "{old_oid} {new_oid}").expect("Always writeable");
+            writeln!(stdin, "{old_oid} {new_oid}").expect("Always writable");
         }
 
         match self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[]) {
@@ -188,7 +188,7 @@ impl Hooks {
         let mut stdin = String::new();
         for (old_oid, new_oid, ref_name) in changed_refs {
             use std::fmt::Write;
-            writeln!(stdin, "{old_oid} {new_oid} {ref_name}").expect("Always writeable");
+            writeln!(stdin, "{old_oid} {new_oid} {ref_name}").expect("Always writable");
         }
 
         let code = self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[])?;
@@ -220,7 +220,7 @@ impl Hooks {
         let mut stdin = String::new();
         for (old_oid, new_oid, ref_name) in changed_refs {
             use std::fmt::Write;
-            writeln!(stdin, "{old_oid} {new_oid} {ref_name}").expect("Always writeable");
+            writeln!(stdin, "{old_oid} {new_oid} {ref_name}").expect("Always writable");
         }
 
         match self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[]) {
@@ -251,7 +251,7 @@ impl Hooks {
         let mut stdin = String::new();
         for (old_oid, new_oid, ref_name) in changed_refs {
             use std::fmt::Write;
-            writeln!(stdin, "{old_oid} {new_oid} {ref_name}").expect("Always writeable");
+            writeln!(stdin, "{old_oid} {new_oid} {ref_name}").expect("Always writable");
         }
 
         match self.run_hook(repo, name, &args, Some(stdin.as_bytes()), &[]) {
