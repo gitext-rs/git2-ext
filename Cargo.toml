@@ -123,7 +123,7 @@ pre-release-replacements = [
 ]
 
 [dependencies]
-git2 = { version = ">=0.16, <=0.20", default-features = false }
+git2 = { version = "0.21", default-features = false }
 log = "0.4.29"
 itertools = "0.14.0"
 which = "8.0.0"
