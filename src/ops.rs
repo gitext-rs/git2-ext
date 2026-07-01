@@ -20,6 +20,7 @@ pub fn head_branch(repo: &git2::Repository) -> Option<String> {
         .ok()?
         .shorthand()
         .map(String::from)
+        .ok()
 }
 
 /// Report if the working directory is dirty
@@ -39,7 +40,7 @@ pub fn is_dirty(repo: &git2::Repository) -> bool {
             "Repository is dirty: {}",
             status
                 .iter()
-                .filter_map(|s| s.path().map(|s| s.to_owned()))
+                .filter_map(|s| s.path().map(|s| s.to_owned()).ok())
                 .join(", ")
         );
         true
@@ -117,7 +118,7 @@ pub fn cherry_pick(
         }
 
         let mut sig = commit_signature(repo)?;
-        if let (Some(name), Some(email)) = (sig.name(), sig.email()) {
+        if let (Ok(name), Ok(email)) = (sig.name(), sig.email()) {
             // For simple rebases, preserve the original commit time
             sig = git2::Signature::new(name, email, &cherry_commit.time())?.to_owned();
         }
