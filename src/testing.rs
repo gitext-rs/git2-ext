@@ -195,7 +195,7 @@ impl Git {
                 .stdout(Stdio::piped())
                 .stderr(Stdio::piped())
                 .spawn()?;
-            write!(child.stdin.take().unwrap(), "{}", &input)?;
+            write!(child.stdin.take().unwrap(), "{input}")?;
             child.wait_with_output().wrap_err_with(|| {
                 format!(
                     "Running git
@@ -203,7 +203,7 @@ impl Git {
                     Args: {:?}
                     Stdin: {:?}
                     Env: <not shown>",
-                    &self.path_to_git, &args, input
+                    self.path_to_git, args, input
                 )
             })?
         } else {
@@ -213,7 +213,7 @@ impl Git {
                     Executable: {:?}
                     Args: {:?}
                     Env: <not shown>",
-                    &self.path_to_git, &args
+                    self.path_to_git, args
                 )
             })?
         };
