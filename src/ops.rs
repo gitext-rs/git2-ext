@@ -314,10 +314,7 @@ impl UserSign {
                     },
                 )?;
 
-                Ok(UserSign(UserSignInner::Gpg(GpgSign::new(
-                    program,
-                    signing_key,
-                ))))
+                Ok(Self(UserSignInner::Gpg(GpgSign::new(program, signing_key))))
             }
             "x509" => {
                 let program = config
@@ -331,10 +328,7 @@ impl UserSign {
                     },
                 )?;
 
-                Ok(UserSign(UserSignInner::Gpg(GpgSign::new(
-                    program,
-                    signing_key,
-                ))))
+                Ok(Self(UserSignInner::Gpg(GpgSign::new(program, signing_key))))
             }
             "ssh" => {
                 let program = config
@@ -353,10 +347,7 @@ impl UserSign {
                         )
                     })?;
 
-                Ok(UserSign(UserSignInner::Ssh(SshSign::new(
-                    program,
-                    signing_key,
-                ))))
+                Ok(Self(UserSignInner::Ssh(SshSign::new(program, signing_key))))
             }
             _ => Err(git2::Error::new(
                 git2::ErrorCode::Invalid,

@@ -42,7 +42,7 @@ pub(crate) struct GitInitOptions {
 
 impl Default for GitInitOptions {
     fn default() -> Self {
-        GitInitOptions {
+        Self {
             make_initial_commit: true,
         }
     }
@@ -93,7 +93,7 @@ impl Git {
             // We pass the repo directory when calling `run`.
             working_directory: _,
         } = git_run_info;
-        Git {
+        Self {
             repo_path,
             path_to_git,
         }
